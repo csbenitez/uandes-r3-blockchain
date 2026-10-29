@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: besu
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["node1:9545", "node2:9545", "node3:9545", "node4:9545"]

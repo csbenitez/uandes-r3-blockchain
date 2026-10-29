@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dApp Taller Besu</title>
+<style>
+  :root { --bg:#f6f7f9; --fg:#1b1f24; --card:#fff; --line:#d8dce2; --acc:#2563eb; --ok:#15803d; --bad:#b91c1c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171c; --fg:#e6e8eb; --card:#1d2128; --line:#333a44; --acc:#6ea0ff; --ok:#4ade80; --bad:#f87171; } }
+  body { font:15px system-ui,sans-serif; background:var(--bg); color:var(--fg); margin:0; padding:16px; }
+  main { max-width:900px; margin:0 auto; display:grid; gap:14px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px; }
+  h1 { font-size:20px; margin:0 0 4px } h2 { font-size:16px; margin:0 0 8px }
+  button { background:var(--acc); color:#fff; border:0; border-radius:6px; padding:7px 12px; cursor:pointer }
+  input[type=text], input:not([type]) { padding:6px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); width:100%; box-sizing:border-box }
+  pre { background:var(--bg); padding:8px; border-radius:6px; overflow:auto; white-space:pre-wrap; word-break:break-all; margin:8px 0 0 }
+  table { width:100%; border-collapse:collapse; font-size:13px } td,th { border-bottom:1px solid var(--line); padding:4px; text-align:left; word-break:break-all }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:6px 0 }
+  .ok { color:var(--ok) } .bad { color:var(--bad) }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>dApp del Taller · Registro de eventos</h1>
+    <div class="row">
+      <button id="connect">1. Conectar Metamask / agregar red</button>
+      <span id="acct">sin conectar</span>
+    </div>
+    <small>Red: chainId 20261 · RPC http://localhost:8545 · sin gas (zeroBaseFee)</small>
+  </section>
+
+  <section>
+    <h2>2. Registrar un archivo (hash en el navegador, firma con Metamask)</h2>
+    <div class="row"><input type="file" id="file"></div>
+    <div class="row"><input id="kind" placeholder="tipo (p. ej. FACTURA)" value="DOCUMENTO"><input id="uri" placeholder="uri off-chain (opcional)"></div>
+    <button id="register">Hashear y registrar</button>
+    <pre id="regOut">—</pre>
+  </section>
+
+  <section>
+    <h2>3. Verificar un archivo en la cadena</h2>
+    <div class="row"><input type="file" id="vfile"><button id="verify">Verificar</button></div>
+    <pre id="verOut">—</pre>
+  </section>
+
+  <section>
+    <h2>4. Firmar un mensaje y verificar la firma (EIP-191)</h2>
+    <div class="row"><input id="msg" value="hola consorcio"><button id="sign">Firmar con Metamask</button></div>
+    <pre id="sigOut">—</pre>
+    <div class="row"><button id="kmsVerify">Verificar con el KMS (Go)</button></div>
+    <pre id="kmsOut">—</pre>
+  </section>
+
+  <section>
+    <h2>5. Eventos indexados por el microservicio Go</h2>
+    <div class="row"><button id="reload">Recargar</button><button id="viaKms">Registrar vía backend + KMS</button></div>
+    <table><thead><tr><th>#</th><th>docHash</th><th>emisor</th><th>tipo</th><th>bloque</th></tr></thead><tbody id="rows"></tbody></table>
+    <pre id="idxOut"></pre>
+  </section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+network/out/
+node_modules/
+contracts-hardhat/artifacts/
+contracts-hardhat/cache/
+services/bin/
+*.db
