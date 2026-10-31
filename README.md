@@ -2,7 +2,7 @@
 
 Red de 4 validadores en Docker, contratos con Hardhat/Remix, KMS simulado, microservicio indexador en Go y una dApp con Metamask. Pensado para quien viene del desarrollo web tradicional.
 
-> **Proyecto Voltera (Entrega 4):** este repo también aloja la facturación verificable del curso ARTI-4208. Empieza por [docs/voltera/README.md](docs/voltera/README.md). Para retomar con un agente, ver [AGENTS.md](AGENTS.md).
+> **Proyecto Voltera (Entrega 4):** este repo también aloja la facturación verificable del curso ARTI-4208. Empieza por [docs/voltera/README.md](docs/voltera/README.md). 
 
 ```mermaid
 flowchart LR
