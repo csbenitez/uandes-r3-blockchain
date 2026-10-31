@@ -171,7 +171,7 @@ Una implementación nueva debe pasar `vectores/vectores.json`.
 | Archivo | Contenido |
 |---|---|
 | `resultados/besu/resumen.json` | Criterios, controles, gas, latencia y configuración |
-| `resultados/besu/resultados.csv` | Una fila por verificación |
+| `resultados/besu/historial/` | Una fila por verificación |
 | `resultados/besu/historial/` | Log, resumen y CSV generados por las corridas |
 
 **Columnas del CSV:** `idNegocio`, `facturaId`, `caso`, `tipo`, `esperado`, `obtenido`, `motivo`, `hashCalculado`, `hashCadena`, `txHash`, `txCoincide`, `ms`, `correcto`.
