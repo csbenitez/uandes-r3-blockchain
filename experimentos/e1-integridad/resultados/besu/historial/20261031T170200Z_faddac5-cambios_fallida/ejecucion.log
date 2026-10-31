@@ -1,0 +1,205 @@
+
+==> Limpieza de contenedores, cadena y datos
+ Container node2 Stopping 
+ Container node3 Stopping 
+ Container node1 Stopping 
+ Container prometheus Stopping 
+ Container grafana Stopping 
+ Container invoice-verifier Stopping 
+ Container node4 Stopping 
+ Container grafana Stopped 
+ Container grafana Removing 
+ Container invoice-verifier Stopped 
+ Container invoice-verifier Removing 
+ Container prometheus Stopped 
+ Container prometheus Removing 
+ Container prometheus Removed 
+ Container invoice-verifier Removed 
+ Container grafana Removed 
+ Container node2 Stopped 
+ Container node2 Removing 
+ Container node2 Removed 
+ Container node4 Stopped 
+ Container node4 Removing 
+ Container node4 Removed 
+ Container node1 Stopped 
+ Container node1 Removing 
+ Container node1 Removed 
+ Container node3 Stopped 
+ Container node3 Removing 
+ Container node3 Removed 
+ Container taller-besu-besu-init-1 Stopping 
+ Container taller-besu-besu-init-1 Stopped 
+ Container taller-besu-besu-init-1 Removing 
+ Container taller-besu-besu-init-1 Removed 
+ Volume taller-besu_node1-data Removing 
+ Volume taller-besu_node2-data Removing 
+ Volume taller-besu_node3-data Removing 
+ Network taller-besu_chain Removing 
+ Volume taller-besu_node4-data Removing 
+ Volume taller-besu_node1-data Removed 
+ Volume taller-besu_node2-data Removed 
+ Volume taller-besu_node3-data Removed 
+ Volume taller-besu_node4-data Removed 
+ Network taller-besu_chain Removed 
+
+==> Vectores y lógica de Node
+✔ no acepta contaminación por __proto__ (0.494741ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 54
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 630.088141
+
+==> Reimplementación independiente en Python
+30 de 30 vectores coinciden
+
+==> Contratos: conformidad de IRegistroFacturas
+
+
+  Conformidad IRegistroFacturas (RegistroFacturasMinimo)
+    ✔ devuelve vacío para una factura no anclada
+    ✔ registra un lote, guarda la huella y emite el evento
+    ✔ acepta 100 facturas por lote y rechaza vacío o 101 (206ms)
+    ✔ un reintento con la misma huella no falla ni emite de nuevo
+    ✔ no permite reemplazar la huella de una factura anclada
+    ✔ un conflicto revierte el lote completo
+    ✔ rechaza identificador o huella vacíos
+    ✔ solo el registrador puede escribir
+
+
+  8 passing (1s)
+
+
+==> Go: huella, almacén y verificación
+ok  	taller/internal/huella	(cached)
+ok  	taller/internal/almacen	(cached)
+ok  	taller/internal/verificacion	(cached)
+
+==> Red QBFT de 4 validadores, Prometheus y Grafana
+ Network taller-besu_chain Creating 
+ Volume taller-besu_node1-data Creating 
+ Volume taller-besu_node2-data Creating 
+ Network taller-besu_chain Creating 
+ Volume taller-besu_node4-data Creating 
+ Volume taller-besu_node4-data Creating 
+ Volume taller-besu_node2-data Creating 
+ Volume taller-besu_node1-data Creating 
+ Volume taller-besu_node3-data Creating 
+ Volume taller-besu_node3-data Creating 
+ Volume taller-besu_node4-data Created 
+ Volume taller-besu_node4-data Created 
+ Volume taller-besu_node2-data Created 
+ Volume taller-besu_node2-data Created 
+ Volume taller-besu_node3-data Created 
+ Volume taller-besu_node3-data Created 
+ Volume taller-besu_node1-data Created 
+ Volume taller-besu_node1-data Created 
+ Network taller-besu_chain Created 
+ Network taller-besu_chain Created 
+ Container prometheus Creating 
+ Container grafana Creating 
+ Container taller-besu-besu-init-1 Creating 
+ Container taller-besu-besu-init-1 Created 
+ Container node2 Creating 
+ Container node3 Creating 
+ Container node1 Creating 
+ Container node4 Creating 
+ Container grafana Created 
+ Container prometheus Created 
+ Container node2 Created 
+ Container node4 Created 
+ Container node3 Created 
+ Container node1 Created 
+ Container prometheus Starting 
+ Container taller-besu-besu-init-1 Starting 
+ Container grafana Starting 
+ Container prometheus Started 
+ Container taller-besu-besu-init-1 Started 
+ Container taller-besu-besu-init-1 Waiting 
+ Container taller-besu-besu-init-1 Waiting 
+ Container taller-besu-besu-init-1 Waiting 
+ Container taller-besu-besu-init-1 Waiting 
+ Container grafana Started 
+ Container taller-besu-besu-init-1 Exited 
+ Container node2 Starting 
+ Container taller-besu-besu-init-1 Exited 
+ Container node4 Starting 
+ Container taller-besu-besu-init-1 Exited 
+ Container taller-besu-besu-init-1 Exited 
+ Container node1 Starting 
+ Container node3 Starting 
+ Container node2 Started 
+ Container node4 Started 
+ Container node1 Started 
+ Container node3 Started 
+Esperando bloques y 3 pares en cada nodo...................... listo
+
+==> Despliegue del contrato
+RegistroFacturasMinimo en 0x42699A7612A82f1d9C36148af9C77354759b210b, bloque 31, red besu
+
+==> invoice-verifier, leyendo la copia del nodo 3
+time="2026-10-31T12:01:59-05:00" level=warning msg="buildx Docker CLI plugin not found: falling back to the classic builder. BuildKit-only build features (multi-arch, secrets, ssh, additional contexts, ...) will not be available"
+ Image taller-besu-invoice-verifier Building 
+ Image taller-besu-invoice-verifier Building 
+Sending build context to Docker daemon  28.69kB
+Step 1/11 : FROM golang:1.26-alpine AS build
+ ---> 51ff61e0d9a2
+Step 2/11 : ARG SERVICE
+ ---> Using cache
+ ---> 80736fa25fad
+Step 3/11 : WORKDIR /src
+ ---> Using cache
+ ---> 5c0c6203f988
+Step 4/11 : COPY go.mod go.sum ./
+ ---> Using cache
+ ---> b6fa24f7e5bc
+Step 5/11 : RUN go mod download
+ ---> Using cache
+ ---> 9664cd6c342e
+Step 6/11 : COPY . .
+ ---> 40c41bc84aec
+Step 7/11 : RUN CGO_ENABLED=0 go build -o /out/app ./cmd/${SERVICE}
+ ---> Running in dfeb693b27fb
+ ---> Removed intermediate container dfeb693b27fb
+ ---> 9e59be866717
+Step 8/11 : FROM alpine:3.20
+ ---> bf8527eb54c3
+Step 9/11 : COPY --from=build /out/app /app
+ ---> cfc3bf0546ef
+Step 10/11 : ENTRYPOINT ["/app"]
+ ---> Running in f97766ca1882
+ ---> Removed intermediate container f97766ca1882
+ ---> 3401e65a4a79
+Step 11/11 : LABEL com.docker.compose.image.builder=classic
+ ---> Running in c55a5157e039
+ ---> Removed intermediate container c55a5157e039
+ ---> f3a74749f469
+Successfully built f3a74749f469
+Successfully tagged taller-besu-invoice-verifier:latest
+ Image taller-besu-invoice-verifier Built 
+ Image taller-besu-invoice-verifier Built 
+ Container invoice-verifier Creating 
+ Container invoice-verifier Created 
+ Container invoice-verifier Starting 
+ Container invoice-verifier Started 
+{"bloque":42,"contrato":"0x42699A7612A82f1d9C36148af9C77354759b210b","status":"ok"}
+
+[Fase 1] Emisión: 11250 facturas y almacenamiento off-chain cifrado
+  Variantes equivalentes en íntegras: original, orden_claves, espacios, forma_nfd, escape_unicode, combinada
+
+[Fase 2] Anclaje en Besu: lotes de 100 firmados por la cuenta registradora
+ProviderError: Internal error
+    at HttpProvider.request (/home/ubenarra/e4/repo/node_modules/hardhat/src/internal/core/providers/http.ts:116:21)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at HardhatEthersProvider.estimateGas (/home/ubenarra/e4/repo/node_modules/@nomicfoundation/hardhat-ethers/src/internal/hardhat-ethers-provider.ts:246:27)
+    at /home/ubenarra/e4/repo/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:339:35
+    at async Promise.all (index 0)
+    at HardhatEthersSigner._sendUncheckedTransaction (/home/ubenarra/e4/repo/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:360:7)
+    at HardhatEthersSigner.sendTransaction (/home/ubenarra/e4/repo/node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:185:18)
+    at send (/home/ubenarra/e4/repo/node_modules/ethers/src.ts/contract/contract.ts:313:20)
+    at Proxy.registrarLote (/home/ubenarra/e4/repo/node_modules/ethers/src.ts/contract/contract.ts:352:16)
+    at anclar (/home/ubenarra/e4/repo/experimentos/e1-integridad/correr.js:52:16)

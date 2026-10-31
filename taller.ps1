@@ -42,9 +42,9 @@ switch ($Cmd) {
     try { "validadores: " + ((Rpc 8545 ($(if ($Consensus -eq 'ibft2') { 'ibft_getValidatorsByBlockNumber' } else { 'qbft_getValidatorsByBlockNumber' })) @('latest')) -join ', ') } catch {}
   }
   'logs'   { docker compose logs -f --tail 50 $Service }
-  'down'   { docker compose --profile tools --profile monitoring down }
+  'down'   { docker compose --profile tools --profile monitoring --profile e1 down }
   'reset'  {
-    docker compose --profile tools --profile monitoring down -v
+    docker compose --profile tools --profile monitoring --profile e1 down -v
     Remove-Item -Recurse -Force network\out -ErrorAction SilentlyContinue
     Remove-Item -Force deployments\besu.json -ErrorAction SilentlyContinue
     'Reiniciado. Ejecuta: .\taller.ps1 up'

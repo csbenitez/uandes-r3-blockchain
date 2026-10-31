@@ -5,3 +5,12 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["node1:9545", "node2:9545", "node3:9545", "node4:9545"]
+  # E1: el servicio corre en el perfil e1; el conductor del experimento corre en el host.
+  - job_name: invoice-verifier
+    scrape_interval: 2s
+    static_configs:
+      - targets: ["invoice-verifier:8090"]
+  - job_name: e1-experimento
+    scrape_interval: 2s
+    static_configs:
+      - targets: ["host.docker.internal:9464"]

@@ -135,6 +135,7 @@ services:
     container_name: prometheus
     volumes: ["./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
     ports: ["9090:9090"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
     networks: [chain]
 
   grafana:
@@ -144,7 +145,27 @@ services:
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/tableros:/var/lib/grafana/tableros:ro
     ports: ["3001:3000"]
+    networks: [chain]
+
+  # ---------- Voltera E1 (perfil e1) ----------
+  invoice-verifier:
+    profiles: [e1]
+    build: { context: ./services, args: { SERVICE: invoice-verifier } }
+    container_name: invoice-verifier
+    environment:
+      # Lee la copia del libro de otra organización: verificar no depende del nodo de Voltera.
+      RPC_HTTP_URL: http://node3:8545
+      DEPLOYMENT_FILE: /deployments/e1.json
+      DATOS_DIR: /datos
+      LLAVE_DOCUMENTOS_HEX: ${LLAVE_DOCUMENTOS_HEX:-}
+    ports: ["8090:8090"]
+    volumes:
+      - ./deployments:/deployments:ro
+      - ./experimentos/e1-integridad/.datos:/datos:ro
     networks: [chain]
 
 networks:

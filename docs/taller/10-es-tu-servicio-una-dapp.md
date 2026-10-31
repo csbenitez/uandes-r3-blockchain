@@ -23,12 +23,14 @@ Aplica la lista al dominio de Voltera: quiénes son las partes, qué evento nece
 
 | Pregunta | Respuesta para Voltera |
 |---|---|
-| Partes que no confían entre sí | |
-| Evento a probar | |
-| ¿Qué va on-chain? (hash/id) | |
-| ¿Qué va off-chain? | |
-| Quién corre nodos | |
-| ¿Datos personales? | |
+| Partes que no confían entre sí | Voltera, operador de red, gestor de comunidades y ente de control |
+| Evento a probar | Que una factura emitida no cambió después de anclarse |
+| ¿Qué va on-chain? (hash/id) | `facturaId`, huella SHA-256, cuenta seudonimizada y totales |
+| ¿Qué va off-chain? | Factura completa cifrada, PDF, curva de consumo y datos personales |
+| Quién corre nodos | Las cuatro organizaciones; en este repo se simulan en un solo host |
+| ¿Datos personales? | Off-chain, por Ley 1581 |
+
+Detalle en [docs/voltera](../voltera/README.md).
 
 ## Anti-patrones
 - Guardar **datos personales** o documentos completos on-chain (derecho al olvido/Habeas Data/RGPD imposible).

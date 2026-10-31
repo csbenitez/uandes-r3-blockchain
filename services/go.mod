@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/ethereum/go-ethereum v1.17.10
+	golang.org/x/text v0.41.0
 	modernc.org/sqlite v1.61.0
 )
 

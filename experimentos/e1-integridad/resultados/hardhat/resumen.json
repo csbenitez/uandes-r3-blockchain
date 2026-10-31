@@ -1,0 +1,221 @@
+{
+  "fecha": "2026-10-31T16:19:00.424Z",
+  "codigo": "faddac5+cambios",
+  "red": {
+    "nombre": "hardhat",
+    "chainId": 31337,
+    "bloqueFinal": 112
+  },
+  "contrato": {
+    "nombre": "RegistroFacturasMinimo",
+    "direccion": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  },
+  "configuracion": {
+    "integras": 10000,
+    "alteradas": 1000,
+    "sinAnclar": 200,
+    "limite": 50,
+    "semilla": "voltera-e1",
+    "contrato": "RegistroFacturasMinimo",
+    "tamanoLote": 100
+  },
+  "huellaDelDataset": "0x00771c19287899acb7b73284c668c0701bb988602da525c433085ab4bd353765",
+  "anclaje": {
+    "facturas": 11050,
+    "transacciones": 111,
+    "gasTotal": "305767122",
+    "gasPorFactura": 27671
+  },
+  "criterios": {
+    "deteccion": {
+      "detectadas": 1000,
+      "total": 1000,
+      "tasa": 1,
+      "cumple": true
+    },
+    "falsosPositivos": {
+      "casos": 0,
+      "total": 10000,
+      "cumple": true
+    },
+    "noAnclada": {
+      "correctas": 200,
+      "total": 200,
+      "cumple": true
+    }
+  },
+  "discrepanciasDeVerificacion": 0,
+  "controlNegativoSinCanonica": {
+    "falsosPositivos": 8333,
+    "total": 10000
+  },
+  "limiteConocido": {
+    "casos": 50,
+    "noDetectadas": 50
+  },
+  "porTipo": {
+    "integras": {
+      "espacios": {
+        "total": 1667,
+        "correctas": 1667,
+        "motivos": {
+          "coincide": 1667
+        }
+      },
+      "original": {
+        "total": 1667,
+        "correctas": 1667,
+        "motivos": {
+          "coincide": 1667
+        }
+      },
+      "combinada": {
+        "total": 1666,
+        "correctas": 1666,
+        "motivos": {
+          "coincide": 1666
+        }
+      },
+      "forma_nfd": {
+        "total": 1667,
+        "correctas": 1667,
+        "motivos": {
+          "coincide": 1667
+        }
+      },
+      "orden_claves": {
+        "total": 1667,
+        "correctas": 1667,
+        "motivos": {
+          "coincide": 1667
+        }
+      },
+      "escape_unicode": {
+        "total": 1666,
+        "correctas": 1666,
+        "motivos": {
+          "coincide": 1666
+        }
+      }
+    },
+    "alteradas": {
+      "periodo": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "linea_duplicada": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "sustitucion": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "huella_distinta": 62
+        }
+      },
+      "pdf_alterado": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "pdf_distinto": 62
+        }
+      },
+      "clave_duplicada": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "json_no_canonicalizable": 62
+        }
+      },
+      "decimal_no_canonico": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "json_no_canonicalizable": 62
+        }
+      },
+      "lineas_reordenadas": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "cifrado_sin_llave": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "cifrado_invalido": 62
+        }
+      },
+      "raiz_lecturas": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "documento_eliminado": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "documento_ausente": 62
+        }
+      },
+      "consumo_1_wh": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "linea_eliminada": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "version_tarifa": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "monto_1_cop": {
+        "total": 63,
+        "correctas": 63,
+        "motivos": {
+          "huella_distinta": 63
+        }
+      },
+      "nombre_homoglifo": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "huella_distinta": 62
+        }
+      },
+      "campo_extra": {
+        "total": 62,
+        "correctas": 62,
+        "motivos": {
+          "huella_distinta": 62
+        }
+      }
+    }
+  },
+  "verificacionMs": {
+    "p50": 1.78,
+    "p95": 2.93
+  },
+  "duracionSegundos": 42
+}

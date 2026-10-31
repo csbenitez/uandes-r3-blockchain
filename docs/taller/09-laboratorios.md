@@ -26,7 +26,7 @@ Besu permite **allowlists** de nodos y cuentas (`--permissions-nodes-config-file
 `.\taller.ps1 reset; .\taller.ps1 up -Consensus ibft2` y repite el laboratorio A. Compara tiempos de recuperación y los métodos `ibft_*`.
 
 ## E. Observabilidad
-`.\taller.ps1 up -Monitoring` → Grafana http://localhost:3001 → agrega datasource Prometheus (`http://prometheus:9090`) e importa el dashboard "Besu Full" (ID 10273). Observa `ethereum_blockchain_height`, peers y `besu_transaction_pool_transactions`.
+`.\taller.ps1 up -Monitoring` → Grafana http://localhost:3001 (el datasource Prometheus ya viene configurado) → importa el dashboard "Besu Full" (ID 10273). Observa `ethereum_blockchain_height`, peers y `besu_transaction_pool_transactions`.
 
 ## F. Ataques de integridad (¡divertido!)
 1. Registra un hash; cambia 1 byte del archivo y verifica → no existe.

@@ -1,0 +1,84 @@
+
+==> Despliegue del contrato
+RegistroFacturasMinimo en 0xf10Bcb4DA0334aF0255D2d6bc51940884C55D673, bloque 67, red besu
+
+==> invoice-verifier, leyendo la copia del nodo 3
+time="2026-10-31T12:06:27-05:00" level=warning msg="buildx Docker CLI plugin not found: falling back to the classic builder. BuildKit-only build features (multi-arch, secrets, ssh, additional contexts, ...) will not be available"
+ Image taller-besu-invoice-verifier Building 
+ Image taller-besu-invoice-verifier Building 
+Sending build context to Docker daemon  28.69kB
+Step 1/11 : FROM golang:1.26-alpine AS build
+ ---> 51ff61e0d9a2
+Step 2/11 : ARG SERVICE
+ ---> Using cache
+ ---> 80736fa25fad
+Step 3/11 : WORKDIR /src
+ ---> Using cache
+ ---> 5c0c6203f988
+Step 4/11 : COPY go.mod go.sum ./
+ ---> Using cache
+ ---> b6fa24f7e5bc
+Step 5/11 : RUN go mod download
+ ---> Using cache
+ ---> 9664cd6c342e
+Step 6/11 : COPY . .
+ ---> Using cache
+ ---> 40c41bc84aec
+Step 7/11 : RUN CGO_ENABLED=0 go build -o /out/app ./cmd/${SERVICE}
+ ---> Using cache
+ ---> 9e59be866717
+Step 8/11 : FROM alpine:3.20
+ ---> bf8527eb54c3
+Step 9/11 : COPY --from=build /out/app /app
+ ---> Using cache
+ ---> cfc3bf0546ef
+Step 10/11 : ENTRYPOINT ["/app"]
+ ---> Using cache
+ ---> 3401e65a4a79
+Step 11/11 : LABEL com.docker.compose.image.builder=classic
+ ---> Using cache
+ ---> f3a74749f469
+Successfully built f3a74749f469
+Successfully tagged taller-besu-invoice-verifier:latest
+ Image taller-besu-invoice-verifier Built 
+ Image taller-besu-invoice-verifier Built 
+ Container invoice-verifier Recreate 
+ Container invoice-verifier Recreated 
+ Container invoice-verifier Starting 
+ Container invoice-verifier Started 
+{"bloque":67,"contrato":"0xf10Bcb4DA0334aF0255D2d6bc51940884C55D673","status":"ok"}
+
+[Fase 1] Emisión: 11250 facturas y almacenamiento off-chain cifrado
+  Variantes equivalentes en íntegras: original, orden_claves, espacios, forma_nfd, escape_unicode, combinada
+
+[Fase 2] Anclaje en Besu: lotes de 100 firmados por la cuenta registradora
+  11050 facturas en 111 transacciones y 8 s
+
+[Fase 3] Alteración: 1000 documentos cambian después del anclaje
+  16 tipos: monto_1_cop, consumo_1_wh, periodo, version_tarifa, raiz_lecturas, linea_eliminada, linea_duplicada, lineas_reordenadas, nombre_homoglifo, campo_extra, sustitucion, clave_duplicada, decimal_no_canonico, pdf_alterado, documento_eliminado, cifrado_sin_llave
+
+[Fase 4] Verificación: 11250 consultas a invoice-verifier, que lee la copia del nodo 3
+
+[Fase 5] Evaluación de criterios
+
+Resultado de E1  ·  red besu (chainId 20261)  ·  contrato RegistroFacturasMinimo
+
+  Medida                             Comprometido       Obtenido           
+  Alteraciones detectadas            1.000 (100 %)      1.000 (100.0 %)    CUMPLE
+  Falsos positivos en íntegras       0 de 10.000        0 de 10.000        CUMPLE
+  NO ANCLADA correctas               200                200                CUMPLE
+  txHash de evidencia distintos      0                  0                  CUMPLE
+
+  Controles (no cuentan en el criterio)
+  Falsos positivos sin canónica      se espera > 0      8.333 de 10.000    
+  Alteración previa al hash          no se detecta      50 de 50 sin detectar 
+
+  Operación
+  Anclaje                                               11.050 en 111 tx, 8 s 
+  Gas por factura                                       27.671             
+  Verificación p50 / p95                                3.37 / 8.23 ms     
+  Reintentos por cadena                                 0                  
+
+  Veredicto: CUMPLE
+
+  Evidencias en experimentos/e1-integridad/resultados/besu/

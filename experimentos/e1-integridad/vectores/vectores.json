@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "validos": [
+    {
+      "nombre": "claves_ordenadas",
+      "entrada": "{\"b\":1,\"a\":2}",
+      "canonico": "{\"a\":2,\"b\":1}",
+      "huella": "0xd3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+    },
+    {
+      "nombre": "espacios",
+      "entrada": " { \"a\" : [ 1 , 2 ] ,\n\t\"b\" : { } } ",
+      "canonico": "{\"a\":[1,2],\"b\":{}}",
+      "huella": "0x8c547cce7ccb1b89359479c0b71a0a4b62acfc54a2b2780fd34aaeb75f9e44b7"
+    },
+    {
+      "nombre": "anidado",
+      "entrada": "{\"z\":{\"y\":1,\"x\":[{\"b\":1,\"a\":2}]},\"a\":null,\"m\":true,\"n\":false}",
+      "canonico": "{\"a\":null,\"m\":true,\"n\":false,\"z\":{\"x\":[{\"a\":2,\"b\":1}],\"y\":1}}",
+      "huella": "0x47b687f24a8e538d09545579800dec9393ce6a1e4b1a239b4588f261c67ab2dd"
+    },
+    {
+      "nombre": "arreglo_conserva_orden",
+      "entrada": "{\"a\":[3,1,2]}",
+      "canonico": "{\"a\":[3,1,2]}",
+      "huella": "0xd934227f5a9f29b31bd6a8ceed3213dd498a07ce32bdfa9ae2488de0c0ab68f1"
+    },
+    {
+      "nombre": "nfd_a_nfc",
+      "entrada": "{\"nombre\":\"José\"}",
+      "canonico": "{\"nombre\":\"José\"}",
+      "huella": "0xdcd18639df2893e12568b7713c4fbd81cb31d7e9819e25ddcbaae154091710ad"
+    },
+    {
+      "nombre": "nfc_directo",
+      "entrada": "{\"nombre\":\"José\"}",
+      "canonico": "{\"nombre\":\"José\"}",
+      "huella": "0xdcd18639df2893e12568b7713c4fbd81cb31d7e9819e25ddcbaae154091710ad"
+    },
+    {
+      "nombre": "clave_nfd",
+      "entrada": "{\"José\":1}",
+      "canonico": "{\"José\":1}",
+      "huella": "0x7f675e2c7a0b96d956562206bf1b1368cae841b9513ab5a46aae76cc3e30476a"
+    },
+    {
+      "nombre": "escape_unicode",
+      "entrada": "{\"nombre\":\"Jos\\u00e9\"}",
+      "canonico": "{\"nombre\":\"José\"}",
+      "huella": "0xdcd18639df2893e12568b7713c4fbd81cb31d7e9819e25ddcbaae154091710ad"
+    },
+    {
+      "nombre": "escape_sustituto",
+      "entrada": "{\"s\":\"\\ud83d\\ude00\"}",
+      "canonico": "{\"s\":\"😀\"}",
+      "huella": "0xf9949e1006d1ca22bc0b60ea94f09779f11a8f0a29bae250fc7ab313d879f5e7"
+    },
+    {
+      "nombre": "orden_utf16",
+      "entrada": "{\"😀\":1,\"！\":2,\"a\":3,\"é\":4}",
+      "canonico": "{\"a\":3,\"é\":4,\"😀\":1,\"！\":2}",
+      "huella": "0x3598c9db38e02313ddc0e65fc08345b601ad98a66e1de55e0894a6d2229dd321"
+    },
+    {
+      "nombre": "control",
+      "entrada": "{\"s\":\"a\\nb\\t\\\"c\\\\\\u0001\"}",
+      "canonico": "{\"s\":\"a\\nb\\t\\\"c\\\\\\u0001\"}",
+      "huella": "0x38a26eb038647dce00aa76c2a453269dcb5ebe7ae63fbf714091b7617ce0b669"
+    },
+    {
+      "nombre": "barra_escapada",
+      "entrada": "{\"s\":\"a\\/b\"}",
+      "canonico": "{\"s\":\"a/b\"}",
+      "huella": "0x9c264114e98db725a30993f561fc16c317f85758d9919128ca9102281570bd83"
+    },
+    {
+      "nombre": "negativo",
+      "entrada": "{\"n\":-5}",
+      "canonico": "{\"n\":-5}",
+      "huella": "0x53abd529a491487b6ae236fcbd6f076814a8990b6d3af973f2bc17fe29dabc5f"
+    },
+    {
+      "nombre": "entero_maximo",
+      "entrada": "{\"n\":9007199254740991}",
+      "canonico": "{\"n\":9007199254740991}",
+      "huella": "0xe1da48c6a6089f06ecb4e0a2259e658e3786b2420f52baccdf929ec6460d7b41"
+    },
+    {
+      "nombre": "cero",
+      "entrada": "{\"n\":0}",
+      "canonico": "{\"n\":0}",
+      "huella": "0xf3013f933b9fb80ab6d995e7ad9da36f683837ba1d81e950c943d40111eac2f0"
+    },
+    {
+      "nombre": "vacio",
+      "entrada": "{}",
+      "canonico": "{}",
+      "huella": "0x44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "nombre": "arreglo_raiz",
+      "entrada": "[1,2]",
+      "canonico": "[1,2]",
+      "huella": "0x49a64717d5d4cb19952e6eac2946415cf6879adacf9908e7d872332d32c6e684"
+    }
+  ],
+  "invalidos": [
+    {
+      "nombre": "clave_duplicada",
+      "entrada": "{\"a\":1,\"a\":2}"
+    },
+    {
+      "nombre": "clave_duplicada_nfc",
+      "entrada": "{\"José\":1,\"José\":2}"
+    },
+    {
+      "nombre": "decimal",
+      "entrada": "{\"n\":1.5}"
+    },
+    {
+      "nombre": "decimal_cero",
+      "entrada": "{\"n\":1.0}"
+    },
+    {
+      "nombre": "exponente",
+      "entrada": "{\"n\":1e3}"
+    },
+    {
+      "nombre": "menos_cero",
+      "entrada": "{\"n\":-0}"
+    },
+    {
+      "nombre": "cero_a_la_izquierda",
+      "entrada": "{\"n\":01}"
+    },
+    {
+      "nombre": "fuera_de_rango",
+      "entrada": "{\"n\":9007199254740992}"
+    },
+    {
+      "nombre": "bom",
+      "entrada": "﻿{\"a\":1}"
+    },
+    {
+      "nombre": "coma_final",
+      "entrada": "{\"a\":1,}"
+    },
+    {
+      "nombre": "contenido_extra",
+      "entrada": "{\"a\":1} x"
+    }
+  ],
+  "identificadores": [
+    {
+      "entrada": "FAC-2026-10-0000001",
+      "facturaId": "0x8df45276cdfdc7e9c27b4a2e98338594fc11b0304ff7b31f328a730902c603f5"
+    }
+  ],
+  "cuentas": [
+    {
+      "nic": "NIC-1234567",
+      "sal": "sal-de-prueba",
+      "cuenta": "0x9e1e0724695e1d963ed8a8715db580ab208fd1437422dd24a00623ace6de5eeb"
+    }
+  ]
+}
