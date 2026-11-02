@@ -1,0 +1,37 @@
+{
+  "inicio": "2026-11-02T21:02:08.037Z",
+  "version": "2824cf9",
+  "fases": {
+    "base": {
+      "bloque": 3061,
+      "coinciden4": true
+    },
+    "manipulacion1de4": {
+      "detectadoMs": 57,
+      "detectadoBloques": 0,
+      "divergentes": [
+        "node4"
+      ],
+      "nodosConVerdad": [
+        "node1",
+        "node2",
+        "node3"
+      ],
+      "lotesConfirmados": 3,
+      "cumple": true
+    },
+    "limite": {
+      "conUnCaido": {
+        "loteConfirmadoEnBloque": 3071
+      },
+      "conDosCaidos": {
+        "alturaAntes": 3071,
+        "alturaDespues": 3071,
+        "redDetenida": true,
+        "txConfirmada": false
+      },
+      "recuperacionMs": 76133,
+      "cumple": true
+    }
+  }
+}

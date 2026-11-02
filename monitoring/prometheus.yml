@@ -14,3 +14,8 @@ scrape_configs:
     scrape_interval: 2s
     static_configs:
       - targets: ["host.docker.internal:9464"]
+  # E2: la terminal guiada (guiado.js) corre en el host y publica el estado de los nodos.
+  - job_name: e2-experimento
+    scrape_interval: 2s
+    static_configs:
+      - targets: ["host.docker.internal:9465"]

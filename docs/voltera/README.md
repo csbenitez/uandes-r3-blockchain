@@ -9,7 +9,7 @@ Este repositorio parte del taller de Besu. `docs/taller/` explica la base; esta 
 | Experimento | Rol | Estado | Dónde está |
 |---|---|---|---|
 | E1 · Manipulación off-chain | 1 | Cumple sobre Besu | [e1-integridad.md](e1-integridad.md) |
-| E2 · Manipulación del libro | 2 | Pendiente; el laboratorio A de `docs/taller/09` es la base | |
+| E2 · Manipulación del libro | 2 | Implementado: conductor, terminal guiada y tablero de Grafana; falta la corrida oficial | [README](../../experimentos/e2-manipulacion/README.md) |
 | E3 · Latencia no bloqueante | 3 | Pendiente | |
 | E4 · Autorización | 4 | Pendiente; base en [limitaciones-e4.md](limitaciones-e4.md) | |
 | E5 · Capacidad de anclaje | 5 | Pendiente | |
