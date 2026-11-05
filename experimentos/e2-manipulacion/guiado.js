@@ -3,6 +3,7 @@
 //       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=20 [--facturas=1000]  secuencia completa
 //   --facturas  facturas por ciclo de la carga constante (se lotean en lotes de MAX_LOTE)
 //   --cada      segundos entre ciclos de la carga
+//   En el menú se preguntan ambos al iniciar (Enter conserva el valor del flag) y se cambian con la opción 5.
 //   --pausa     segundos entre pasos del autopiloto
 // Exige la red arriba, el contrato desplegado (deploy-e1.js) y Prometheus/Grafana si se quiere grabar el tablero.
 const fs = require("fs");
@@ -15,7 +16,13 @@ const { Carga } = require("./src/carga");
 const { dormir, altura, tumbar, levantar, restaurarNodos, esperarBloque, verdadPorNodo, TUMBABLES } = require("./src/acciones");
 const { crearEmisor } = require("./enviar-facturas");
 
-const opcion = (nombre, defecto) => Number((process.argv.find((a) => a.startsWith(`--${nombre}=`)) ?? `=${defecto}`).split("=")[1]);
+const opcion = (nombre, defecto) => {
+  const v = Number((process.argv.find((a) => a.startsWith(`--${nombre}=`)) ?? `=${defecto}`).split("=")[1]);
+  if (Number.isFinite(v) && v >= 0) return v;
+  console.log(`  --${nombre} inválido; se usa ${defecto}`);
+  return defecto;
+};
+const LIMITES = { facturas: [1, 100000], cada: [1, 3600] };
 const AUTOPILOTO = process.argv.includes("--autopiloto");
 const PAUSA_S = opcion("pausa", 20);
 const FACTURAS = opcion("facturas", 500);
@@ -253,6 +260,28 @@ async function ejecutarPaso(i) {
   await PASOS[i].ejecutar();
 }
 
+const lineaCarga = (k) =>
+  `Carga: ${k.facturasPorCiclo} facturas cada ${k.cadaMs / 1000} s → ${k.lotesPorCiclo} lotes de hasta ${k.emisor.maxLote} por ciclo`;
+
+// Pide un entero en [min, max]; Enter conserva `actual`.
+async function preguntarEntero(rl, texto, actual, [min, max]) {
+  for (;;) {
+    const r = (await rl.question(`  ${texto} [${actual}]> `)).trim();
+    if (r === "") return actual;
+    const n = Number(r);
+    if (Number.isInteger(n) && n >= min && n <= max) return n;
+    aviso(`Debe ser un entero entre ${min} y ${max}`);
+  }
+}
+
+async function preguntarCarga(rl) {
+  const k = ctx.carga;
+  const facturasPorCiclo = await preguntarEntero(rl, "Facturas por ciclo", k.facturasPorCiclo, LIMITES.facturas);
+  const cadaS = await preguntarEntero(rl, "Segundos entre ciclos (envío de tx)", k.cadaMs / 1000, LIMITES.cada);
+  k.configurar({ facturasPorCiclo, cadaMs: cadaS * 1000 });
+  dato(lineaCarga(k));
+}
+
 // ---------- Modos ----------
 async function modoGuiado(rl) {
   for (let i = 0; i < PASOS.length; i++) {
@@ -276,7 +305,8 @@ async function manual(rl) {
   a) node4 reescribe su libro    b) node4 vuelve a ser honesto
   c) tumbar un nodo (${TUMBABLES.join("/")})   d) levantar un nodo
   e) carga de liquidaciones on/off   f) restaurar todo
-  g) estado                          v) volver`;
+  g) estado                          h) cambiar facturas/cadencia
+  v) volver`;
   for (;;) {
     console.log(ayuda);
     const o = (await rl.question("  acción> ")).trim().toLowerCase();
@@ -293,6 +323,7 @@ async function manual(rl) {
         dato(`carga ${ctx.carga.encendida ? "encendida" : "apagada"}`);
       } else if (o === "f") (await restaurar(), dato("todo restaurado"));
       else if (o === "g") dato(`${ctx.monitor.linea()} | ${ctx.carga.linea()}`);
+      else if (o === "h") await preguntarCarga(rl);
     } catch (e) {
       aviso(e.message);
     }
@@ -331,7 +362,7 @@ async function main() {
 
   titulo("E2 · Manipulación del libro (modo guiado)");
   narrar("Métricas en http://localhost:9465/metrics  |  Grafana: http://localhost:3001 (tablero 'E2 · Manipulación del libro')");
-  narrar(`Carga: ${FACTURAS} facturas cada ${CADA_S} s → ${carga.lotesPorCiclo} lotes de hasta ${emisor.maxLote} por ciclo`);
+  narrar(lineaCarga(carga));
   await dormir(1500);
   narrar(monitor.linea());
 
@@ -352,13 +383,16 @@ async function main() {
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   rl.on("SIGINT", () => salir(130));
+  titulo("Configurar la carga de liquidaciones (Enter conserva el valor)");
+  await preguntarCarga(rl);
   for (;;) {
-    console.log(`\n  ${c.cian}Menú${c.fin}\n  1) Modo guiado (paso a paso)\n  2) Autopiloto (secuencia completa)\n  3) Acciones manuales\n  4) Estado\n  q) Salir y restaurar`);
+    console.log(`\n  ${c.cian}Menú${c.fin}\n  1) Modo guiado (paso a paso)\n  2) Autopiloto (secuencia completa)\n  3) Acciones manuales\n  4) Estado\n  5) Configurar carga (facturas y cadencia)\n  q) Salir y restaurar`);
     const o = (await rl.question("  opción> ")).trim().toLowerCase();
     if (o === "1") await modoGuiado(rl).catch((e) => aviso(e.message));
     else if (o === "2") await autopiloto().catch((e) => aviso(e.message));
     else if (o === "3") await manual(rl);
     else if (o === "4") dato(`${monitor.linea()} | ${carga.linea()}`);
+    else if (o === "5") await preguntarCarga(rl);
     else if (o === "q") return salir(0);
   }
 }

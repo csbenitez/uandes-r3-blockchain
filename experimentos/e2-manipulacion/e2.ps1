@@ -3,7 +3,7 @@
   Uso:  .\experimentos\e2-manipulacion\e2.ps1 <comando> [-Facturas 500] [-Cada 5] [-Pausa 20] [-Ciclos 1] [-SinLimite] [-ReiniciarPrometheus]
     red          levanta los 4 nodos, Prometheus y Grafana (-ReiniciarPrometheus la primera vez)
     desplegar    despliega el contrato de facturas (escribe deployments\e1.json)
-    guiado       terminal guiada: menú, paso a paso y acciones manuales
+    guiado       terminal guiada: pregunta facturas y cadencia, menú, paso a paso y acciones manuales
     autopiloto   los 7 pasos seguidos, con -Pausa segundos entre ellos
     correr       conductor automático sin interfaz (resultados\resumen.json; -SinLimite = solo fases 0 y 1)
     enviar       envía -Ciclos ráfagas de -Facturas facturas y espera sus recibos
@@ -12,6 +12,7 @@
     ayuda        muestra esta ayuda
   -Facturas  facturas por ciclo de la carga; se lotean en lotes de MAX_LOTE (100): 500 = 5 tx, 1000 = 10 tx
   -Cada      segundos entre ciclos de la carga constante
+  En guiado ambos son el valor propuesto: Enter lo conserva, y la opción 5 del menú los cambia en caliente.
 #>
 param(
   [Parameter(Position = 0)]
@@ -45,7 +46,7 @@ function Despliegue {
 }
 
 if ($Cmd -eq 'ayuda') {
-  (Get-Content $PSCommandPath -TotalCount 14 | Select-Object -Skip 1) -join "`n"
+  (Get-Content $PSCommandPath -TotalCount 15 | Select-Object -Skip 1) -join "`n"
   return
 }
 Requisitos

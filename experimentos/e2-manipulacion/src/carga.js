@@ -52,6 +52,18 @@ class Carga {
     this.publicar();
   }
 
+  // Cambia facturas por ciclo y cadencia en caliente. Si la carga corre, solo se reinicia el intervalo de envío.
+  configurar({ facturasPorCiclo = this.facturasPorCiclo, cadaMs = this.cadaMs } = {}) {
+    this.facturasPorCiclo = facturasPorCiclo;
+    this.cadaMs = cadaMs;
+    this.lotesPorCiclo = lotesPara(facturasPorCiclo, this.emisor.maxLote);
+    if (this.activa) {
+      clearInterval(this.envio);
+      this.envio = setInterval(() => this.cicloUno(), this.cadaMs);
+    }
+    this.publicar();
+  }
+
   detener() {
     this.activa = false;
     clearInterval(this.envio);
