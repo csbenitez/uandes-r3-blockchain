@@ -1,5 +1,5 @@
 // Conductor de E2 · Manipulación del libro.
-// Uso:  node experimentos/e2-manipulacion/correr.js [--sin-limite] [--facturas=500]
+// Uso:  node experimentos/e2-manipulacion/correr.js [--sin-limite] [--facturas=10]
 //   --facturas  facturas por ráfaga en las fases 1 y 2 (se lotean en lotes de MAX_LOTE: 500 = 5 tx)
 // Exige la red arriba y el contrato desplegado (deploy-e1.js). Nunca apaga node1: es el punto de entrada del emisor.
 const { execSync } = require("child_process");
@@ -11,7 +11,7 @@ const { crearProxy } = require("./src/proxy-mentiroso");
 const { crearEmisor } = require("./enviar-facturas");
 
 const SIN_LIMITE = process.argv.includes("--sin-limite");
-const FACTURAS = Number((process.argv.find((a) => a.startsWith("--facturas=")) ?? "=500").split("=")[1]);
+const FACTURAS = Number((process.argv.find((a) => a.startsWith("--facturas=")) ?? "=10").split("=")[1]);
 const MAX_RECUPERACION_MS = 6 * 60 * 1000;
 const fase = (n, t) => console.log(`\n\x1b[1;36m[Fase ${n}] ${t}\x1b[0m`);
 const dato = (t) => console.log(`  ${t}`);

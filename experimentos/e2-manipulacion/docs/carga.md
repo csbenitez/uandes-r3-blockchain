@@ -4,7 +4,7 @@
 
 ## Por qué una carga constante
 
-Una red que confirma bien un lote aislado puede comportarse distinto con tráfico sostenido. E2 mide si la manipulación de un nodo o la caída de uno afectan a la liquidación real de Voltera, así que mientras se provocan las fallas corre una **carga constante de N facturas por ciclo** (500 por defecto) contra node1.
+Una red que confirma bien un lote aislado puede comportarse distinto con tráfico sostenido. E2 mide si la manipulación de un nodo o la caída de uno afectan a la liquidación real de Voltera, así que mientras se provocan las fallas corre una **carga constante de N facturas por ciclo** (10 por defecto) contra node1.
 
 ## De facturas a transacciones
 
@@ -20,8 +20,9 @@ ciclo (cada -Cada s)
 
 | Facturas por ciclo | Lotes (tx) por ciclo | Gas máx. por lote | A `-Cada 5` |
 |---|---|---|---|
+| 10 (por defecto) | 1 | 0,45 M | ~2 facturas/s |
 | 250 | 3 (100, 100, 50) | 3,6 M | ~50 facturas/s |
-| 500 (por defecto) | 5 | 3,6 M | ~100 facturas/s |
+| 500 | 5 | 3,6 M | ~100 facturas/s |
 | 1000 | 10 | 3,6 M | ~200 facturas/s |
 
 - **`MAX_LOTE`** lo fija el contrato (`RegistroFacturasMinimo.MAX_LOTE = 100`). El emisor lo lee al arrancar (`registro.MAX_LOTE()`), así que si el contrato cambia el tope, la carga se adapta sin tocar código.

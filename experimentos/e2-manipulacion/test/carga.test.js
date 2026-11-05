@@ -9,7 +9,7 @@ const emisorFalso = () => ({ maxLote: 100, enviarFacturas: async () => ({ lotes:
 test("configurar recalcula los lotes por ciclo y publica las métricas", () => {
   const monitor = monitorFalso();
   const carga = new Carga({ emisor: emisorFalso(), monitor });
-  assert.equal(carga.lotesPorCiclo, 5);
+  assert.equal(carga.lotesPorCiclo, 1);
   carga.configurar({ facturasPorCiclo: 250, cadaMs: 2000 });
   assert.equal(carga.lotesPorCiclo, 3);
   assert.equal(carga.cadaMs, 2000);
@@ -24,7 +24,7 @@ test("configurar con la carga encendida reinicia el intervalo de envío", () => 
   carga.configurar({ cadaMs: 2000 });
   assert.notEqual(carga.envio, antes);
   assert.equal(carga.envio._idleTimeout, 2000);
-  assert.equal(carga.facturasPorCiclo, 500);
+  assert.equal(carga.facturasPorCiclo, 10);
   carga.detener();
 });
 

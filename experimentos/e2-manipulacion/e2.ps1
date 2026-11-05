@@ -1,6 +1,6 @@
 <#
   Operación de E2 · Manipulación del libro (PowerShell).
-  Uso:  .\experimentos\e2-manipulacion\e2.ps1 <comando> [-Facturas 500] [-Cada 5] [-Pausa 20] [-Ciclos 1] [-SinLimite] [-ReiniciarPrometheus]
+  Uso:  .\experimentos\e2-manipulacion\e2.ps1 <comando> [-Facturas 10] [-Cada 5] [-Pausa 20] [-Ciclos 1] [-SinLimite] [-ReiniciarPrometheus]
     red          levanta los 4 nodos, Prometheus y Grafana (-ReiniciarPrometheus la primera vez)
     desplegar    despliega el contrato de facturas (escribe deployments\e1.json)
     guiado       terminal guiada: pregunta facturas y cadencia, menú, paso a paso y acciones manuales
@@ -10,7 +10,7 @@
     pruebas      pruebas de Node de E2
     estado       compara altura y hash de los 4 nodos durante unos segundos
     ayuda        muestra esta ayuda
-  -Facturas  facturas por ciclo de la carga; se lotean en lotes de MAX_LOTE (100): 500 = 5 tx, 1000 = 10 tx
+  -Facturas  facturas por ciclo de la carga; se lotean en lotes de MAX_LOTE (100): 10 = 1 tx, 500 = 5 tx, 1000 = 10 tx
   -Cada      segundos entre ciclos de la carga constante
   En guiado ambos son el valor propuesto: Enter lo conserva, y la opción 5 del menú los cambia en caliente.
 #>
@@ -18,7 +18,7 @@ param(
   [Parameter(Position = 0)]
   [ValidateSet('red', 'desplegar', 'guiado', 'autopiloto', 'correr', 'enviar', 'pruebas', 'estado', 'ayuda')]
   [string]$Cmd = 'ayuda',
-  [ValidateRange(1, 100000)][int]$Facturas = 500,
+  [ValidateRange(1, 100000)][int]$Facturas = 10,
   [ValidateRange(1, 3600)][int]$Cada = 5,
   [ValidateRange(0, 3600)][int]$Pausa = 20,
   [ValidateRange(1, 1000)][int]$Ciclos = 1,

@@ -1,6 +1,6 @@
 // Simula liquidaciones de Voltera: genera facturas sintéticas y las ancla en la cadena con registrarLote.
 // Una ráfaga de N facturas se parte en lotes de hasta MAX_LOTE (lo dice el contrato): 500 facturas = 5 lotes.
-// Uso:  node experimentos/e2-manipulacion/enviar-facturas.js [facturas=500] [ciclos=1] [pausaMs=0]
+// Uso:  node experimentos/e2-manipulacion/enviar-facturas.js [facturas=10] [ciclos=1] [pausaMs=0]
 // Requiere deployments/e1.json (npx hardhat run scripts/deploy-e1.js --network besu, dentro de contracts-hardhat).
 const fs = require("fs");
 const path = require("path");
@@ -101,7 +101,7 @@ async function crearEmisor(rpcUrl = RPC_URL) {
 }
 
 async function main() {
-  const [facturas = 500, ciclos = 1, pausaMs = 0] = process.argv.slice(2).map(Number);
+  const [facturas = 10, ciclos = 1, pausaMs = 0] = process.argv.slice(2).map(Number);
   const emisor = await crearEmisor();
   console.log(
     `Contrato ${emisor.dep.RegistroFacturas.address} | cuenta ${emisor.direccion} | MAX_LOTE ${emisor.maxLote} | bloque actual ${await emisor.proveedor.getBlockNumber()}`,

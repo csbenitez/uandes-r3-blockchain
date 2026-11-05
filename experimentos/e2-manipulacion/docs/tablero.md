@@ -27,7 +27,7 @@ Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido e
 | Ciclos omitidos | `e2_ciclos_omitidos` | Ciclos no emitidos por el tope de 60 lotes pendientes |
 | Lotes revertidos / rechazados | `e2_lotes_revertidos`, `e2_lotes_rechazados` | Deben quedarse en 0 |
 
-## Qué esperar en cada paso (500 facturas cada 5 s, `-Pausa 20`)
+## Qué esperar en cada paso (con `-Facturas 500 -Cada 5 -Pausa 20`)
 
 Cada estado dura al menos `-Pausa` segundos. En una ventana de 15 min los pasos 3–6 ocupan unos 2 min: acerca la ventana a 5 min para verlos con detalle.
 

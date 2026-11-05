@@ -1,5 +1,5 @@
 // E2 guiado: terminal interactiva para provocar la manipulación y las caídas mientras Grafana muestra el efecto.
-// Uso:  node experimentos/e2-manipulacion/guiado.js [--facturas=500] [--cada=5]                 menú
+// Uso:  node experimentos/e2-manipulacion/guiado.js [--facturas=10] [--cada=5]                  menú
 //       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=20 [--facturas=1000]  secuencia completa
 //   --facturas  facturas por ciclo de la carga constante (se lotean en lotes de MAX_LOTE)
 //   --cada      segundos entre ciclos de la carga
@@ -25,7 +25,7 @@ const opcion = (nombre, defecto) => {
 const LIMITES = { facturas: [1, 100000], cada: [1, 3600] };
 const AUTOPILOTO = process.argv.includes("--autopiloto");
 const PAUSA_S = opcion("pausa", 20);
-const FACTURAS = opcion("facturas", 500);
+const FACTURAS = opcion("facturas", 10);
 const CADA_S = opcion("cada", 5);
 const MAX_RECUPERACION_MS = 6 * 60 * 1000;
 

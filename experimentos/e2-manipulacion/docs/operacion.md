@@ -24,11 +24,11 @@ Todo se ejecuta en **PowerShell 7+ desde la raíz del repositorio** (`D:\…\blo
 | `red` | Levanta node1–node4, Prometheus (`:9090`) y Grafana (`:3001`) | `docker compose --profile monitoring up -d node1 node2 node3 node4 prometheus grafana` |
 | `red -ReiniciarPrometheus` | Igual, y reinicia Prometheus para que cargue el job `e2-experimento` (solo la primera vez o si cambiaste `monitoring\prometheus.yml`) | `docker compose --profile monitoring restart prometheus` |
 | `desplegar` | Despliega `RegistroFacturasMinimo` y escribe `deployments\e1.json` | `cd contracts-hardhat; npx hardhat run scripts/deploy-e1.js --network besu; cd ..` |
-| `guiado` | Menú interactivo (modo guiado, autopiloto, acciones manuales) | `node experimentos\e2-manipulacion\guiado.js --facturas=500 --cada=5` |
-| `autopiloto` | Los 7 pasos seguidos con `-Pausa` s entre ellos; al terminar sigue publicando métricas hasta Enter y sale con código 0 si E2 cumple | `node …\guiado.js --autopiloto --pausa=20 --facturas=500 --cada=5` |
-| `correr` | Conductor sin interfaz ni Grafana (fases 0, 1 y 2, ~3–6 min) | `node …\correr.js --facturas=500` |
+| `guiado` | Menú interactivo (modo guiado, autopiloto, acciones manuales) | `node experimentos\e2-manipulacion\guiado.js --facturas=10 --cada=5` |
+| `autopiloto` | Los 7 pasos seguidos con `-Pausa` s entre ellos; al terminar sigue publicando métricas hasta Enter y sale con código 0 si E2 cumple | `node …\guiado.js --autopiloto --pausa=20 --facturas=10 --cada=5` |
+| `correr` | Conductor sin interfaz ni Grafana (fases 0, 1 y 2, ~3–6 min) | `node …\correr.js --facturas=10` |
 | `correr -SinLimite` | Solo fases 0 y 1 (~30 s): no detiene contenedores | `node …\correr.js --sin-limite` |
-| `enviar` | Envía `-Ciclos` ráfagas de `-Facturas` facturas y espera los recibos | `node …\enviar-facturas.js 500 1` |
+| `enviar` | Envía `-Ciclos` ráfagas de `-Facturas` facturas y espera los recibos | `node …\enviar-facturas.js 10 1` |
 | `pruebas` | Pruebas de Node de E2 (`test\*.test.js`) | `node --test (Get-ChildItem experimentos\e2-manipulacion\test\*.test.js).FullName` |
 | `estado` | Muestra ~4 s del observador: bloque común, hash y estado de cada nodo | `node …\src\observador.js` (Ctrl+C para salir) |
 | `ayuda` | Lista comandos y parámetros | — |
@@ -37,8 +37,8 @@ Todo se ejecuta en **PowerShell 7+ desde la raíz del repositorio** (`D:\…\blo
 
 | Parámetro | Por defecto | Aplica a | Efecto |
 |---|---|---|---|
-| `-Facturas` | 500 | guiado, autopiloto, correr, enviar | Facturas por ciclo. Se parten en `ceil(N / 100)` lotes: 500 → 5 tx, 1000 → 10 tx, 250 → 3 tx (100, 100, 50) |
-| `-Cada` | 5 | guiado, autopiloto | Segundos entre ciclos de la carga constante. 500 cada 5 s ≈ 100 facturas/s |
+| `-Facturas` | 10 | guiado, autopiloto, correr, enviar | Facturas por ciclo. Se parten en `ceil(N / 100)` lotes: 10 → 1 tx, 500 → 5 tx, 1000 → 10 tx, 250 → 3 tx (100, 100, 50) |
+| `-Cada` | 5 | guiado, autopiloto | Segundos entre ciclos de la carga constante. 10 cada 5 s ≈ 2 facturas/s; 500 cada 5 s ≈ 100 facturas/s |
 | `-Pausa` | 20 | autopiloto | Segundos entre pasos; cada estado se mantiene al menos este tiempo para que Grafana lo muestre |
 | `-Ciclos` | 1 | enviar | Cuántas ráfagas manda `enviar` |
 | `-SinLimite` | apagado | correr | Omite la fase 2 (caídas de nodos) |

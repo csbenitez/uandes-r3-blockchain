@@ -11,7 +11,7 @@ const MAX_PENDIENTES = 60;
 const VENTANA_MS = 10000;
 
 class Carga {
-  constructor({ emisor, monitor, facturasPorCiclo = 500, cadaMs = 5000 }) {
+  constructor({ emisor, monitor, facturasPorCiclo = 10, cadaMs = 5000 }) {
     this.emisor = emisor;
     this.monitor = monitor;
     this.facturasPorCiclo = facturasPorCiclo;

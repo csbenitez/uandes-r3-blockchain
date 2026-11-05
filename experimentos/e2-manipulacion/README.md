@@ -2,7 +2,7 @@
 
 **Hipótesis:** reescribir un nodo no cambia la verdad del consorcio. Si se altera 1 de los 4 validadores, la red lo detecta en 1 bloque o menos, la mayoría sigue dando la huella correcta y la carga de facturas sigue confirmándose. El límite se mide con 2 de 4: la red se detiene en lugar de avanzar y se recupera cuando vuelven los nodos.
 
-**Carga:** una carga constante de liquidaciones, por defecto **500 facturas cada 5 s**. Cada ciclo se parte en lotes de `MAX_LOTE` (100, lo fija el contrato), es decir 5 transacciones `registrarLote`. Con `-Facturas 1000` son 10 lotes por ciclo. En `guiado` la terminal pregunta al iniciar las facturas por ciclo y los segundos entre ciclos (Enter conserva el valor de `-Facturas`/`-Cada`), y se pueden cambiar en caliente con la opción **5** del menú.
+**Carga:** una carga constante de liquidaciones, por defecto **10 facturas cada 5 s**, es decir 1 transacción `registrarLote` por ciclo. Cada ciclo se parte en lotes de `MAX_LOTE` (100, lo fija el contrato): con `-Facturas 500` son 5 lotes y con `-Facturas 1000`, 10. En `guiado` la terminal pregunta al iniciar las facturas por ciclo y los segundos entre ciclos (Enter conserva el valor de `-Facturas`/`-Cada`), y se pueden cambiar en caliente con la opción **5** del menú.
 
 ## Inicio rápido (PowerShell, desde la raíz del repo)
 
@@ -10,7 +10,7 @@
 npm install                                                           # una vez
 .\experimentos\e2-manipulacion\e2.ps1 red -ReiniciarPrometheus        # 4 nodos + Prometheus + Grafana
 .\experimentos\e2-manipulacion\e2.ps1 desplegar                       # contrato de facturas (una vez por red nueva)
-.\experimentos\e2-manipulacion\e2.ps1 guiado                          # menú interactivo; pregunta facturas y cadencia (500 / 5 s)
+.\experimentos\e2-manipulacion\e2.ps1 guiado                          # menú interactivo; pregunta facturas y cadencia (10 / 5 s)
 ```
 
 Abre Grafana en http://localhost:3001, tablero **E2 · Manipulación del libro** (acceso anónimo, sin login), y deja la terminal a su lado. Variantes frecuentes:
