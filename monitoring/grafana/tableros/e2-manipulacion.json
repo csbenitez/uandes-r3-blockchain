@@ -687,6 +687,276 @@
           }
         }
       }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Facturas: confirmadas y pendientes",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_facturas_confirmadas",
+          "legendFormat": "confirmadas"
+        },
+        {
+          "refId": "B",
+          "expr": "e2_facturas_pendientes",
+          "legendFormat": "pendientes"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "showPoints": "never"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pendientes"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Carga constante: N facturas por ciclo, loteadas en lotes de MAX_LOTE. Pendientes sube cuando no hay quórum."
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Facturas confirmadas por segundo",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_facturas_por_segundo",
+          "legendFormat": "facturas/s"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "calcs": [
+            "lastNotNull"
+          ],
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "description": "Promedio móvil de 10 s de las facturas cuyo lote ya tiene recibo."
+    },
+    {
+      "id": 16,
+      "type": "stat",
+      "title": "Carga por ciclo",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_facturas_por_ciclo",
+          "instant": true,
+          "legendFormat": "facturas"
+        },
+        {
+          "refId": "B",
+          "expr": "e2_lotes_por_ciclo",
+          "instant": true,
+          "legendFormat": "lotes"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "—",
+          "unit": "short"
+        }
+      },
+      "description": "Facturas por ciclo y lotes (tx) en que se parten."
+    },
+    {
+      "id": 17,
+      "type": "stat",
+      "title": "Ciclos omitidos",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_ciclos_omitidos",
+          "instant": true,
+          "legendFormat": "omitidos"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "—",
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 4
+              },
+              {
+                "color": "red",
+                "value": 8
+              }
+            ]
+          }
+        }
+      },
+      "description": "Ciclos que la carga no emitió porque el backlog llegó al tope de 60 lotes pendientes."
+    },
+    {
+      "id": 18,
+      "type": "stat",
+      "title": "Lotes revertidos / rechazados",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 26
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_lotes_revertidos",
+          "instant": true,
+          "legendFormat": "revertidos"
+        },
+        {
+          "refId": "B",
+          "expr": "e2_lotes_rechazados",
+          "instant": true,
+          "legendFormat": "rechazados"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "—",
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 4
+              },
+              {
+                "color": "red",
+                "value": 8
+              }
+            ]
+          }
+        }
+      },
+      "description": "Revertidos: recibo con status 0. Rechazados: el RPC no aceptó la tx. Ambos deben quedar en 0."
     }
   ]
 }

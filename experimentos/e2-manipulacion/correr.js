@@ -1,5 +1,6 @@
 // Conductor de E2 · Manipulación del libro.
-// Uso:  node experimentos/e2-manipulacion/correr.js [--sin-limite]
+// Uso:  node experimentos/e2-manipulacion/correr.js [--sin-limite] [--facturas=500]
+//   --facturas  facturas por ráfaga en las fases 1 y 2 (se lotean en lotes de MAX_LOTE: 500 = 5 tx)
 // Exige la red arriba y el contrato desplegado (deploy-e1.js). Nunca apaga node1: es el punto de entrada del emisor.
 const { execSync } = require("child_process");
 const fs = require("fs");
@@ -10,16 +11,19 @@ const { crearProxy } = require("./src/proxy-mentiroso");
 const { crearEmisor } = require("./enviar-facturas");
 
 const SIN_LIMITE = process.argv.includes("--sin-limite");
+const FACTURAS = Number((process.argv.find((a) => a.startsWith("--facturas=")) ?? "=500").split("=")[1]);
 const MAX_RECUPERACION_MS = 6 * 60 * 1000;
 const fase = (n, t) => console.log(`\n\x1b[1;36m[Fase ${n}] ${t}\x1b[0m`);
 const dato = (t) => console.log(`  ${t}`);
 
 async function main() {
-  const res = { inicio: new Date().toISOString(), version: "", fases: {} };
+  const res = { inicio: new Date().toISOString(), version: "", facturasPorRafaga: FACTURAS, maxLote: null, fases: {} };
   const proxy = crearProxy();
   await proxy.iniciar();
   const urls = { ...NODOS, node4: proxy.url };
   const emisor = await crearEmisor();
+  res.maxLote = emisor.maxLote;
+  const lotesPorRafaga = Math.ceil(FACTURAS / emisor.maxLote);
 
   try {
     res.version = execSync("git rev-parse --short HEAD", { stdio: "pipe" }).toString().trim();
@@ -58,20 +62,19 @@ async function main() {
   const honestos = Object.keys(lecturas).filter((n) => lecturas[n] === original);
   dato(`la mayoría (${honestos.length}/4) devuelve la huella original; la verdad del consorcio no cambió: ${honestos.length >= 3}`);
 
-  let confirmados = 0;
-  for (let i = 0; i < 3; i++) {
-    const l = await emisor.enviar(2);
-    confirmados += l.recibo.status === 1 ? 1 : 0;
-  }
-  dato(`lotes enviados mientras node4 miente: 3, confirmados: ${confirmados}`);
+  const rafaga = await emisor.enviarFacturas(FACTURAS);
+  const confirmados = rafaga.lotes.filter((l) => l.recibo.status === 1).length;
+  dato(`ráfaga mientras node4 miente: ${FACTURAS} facturas en ${lotesPorRafaga} lotes, confirmados ${confirmados} (${rafaga.ms} ms)`);
   proxy.mentir(false);
   res.fases.manipulacion1de4 = {
     detectadoMs: msDeteccion,
     detectadoBloques: bloquesDeteccion,
     divergentes: f1.divergentes,
     nodosConVerdad: honestos,
+    lotesEnviados: lotesPorRafaga,
     lotesConfirmados: confirmados,
-    cumple: bloquesDeteccion <= 1 && honestos.length >= 3 && confirmados === 3,
+    facturasConfirmadas: rafaga.lotes.filter((l) => l.recibo.status === 1).reduce((s, l) => s + l.facturas.length, 0),
+    cumple: bloquesDeteccion <= 1 && honestos.length >= 3 && confirmados === lotesPorRafaga,
   };
 
   if (SIN_LIMITE) return cerrar(res, proxy);
@@ -83,17 +86,20 @@ async function main() {
   const hA = await altura();
   while ((await altura()) <= hA && Date.now() - tStop < 60000) await dormir(300);
   dato(`con 1 caído, la red produjo bloque a los ${((Date.now() - tStop) / 1000).toFixed(1)} s`);
-  const con3 = await emisor.enviar(2);
-  dato(`lote con 3 de 4: confirmado en el bloque ${con3.recibo.blockNumber} (${con3.ms} ms)`);
+  const con3 = await emisor.enviarFacturas(FACTURAS);
+  const bloquesCon3 = [...new Set(con3.lotes.map((l) => l.recibo.blockNumber))];
+  const okCon3 = con3.lotes.filter((l) => l.recibo.status === 1).length;
+  dato(`ráfaga con 3 de 4: ${okCon3}/${lotesPorRafaga} lotes confirmados en los bloques ${bloquesCon3.join(", ")} (${con3.ms} ms)`);
 
   docker("stop node3");
   const hB = await altura();
-  const colgado = await emisor.enviar(2, { esperar: false });
+  const colgado = await emisor.enviarFacturas(FACTURAS, { esperar: false });
+  const recibosDe = (lotes) => Promise.all(lotes.map((l) => emisor.proveedor.getTransactionReceipt(l.tx.hash).catch(() => null)));
   await dormir(20000);
   const hC = await altura();
-  const recibo2 = await emisor.proveedor.getTransactionReceipt(colgado.tx.hash);
-  const congelada = hC - hB <= 1 && !recibo2;
-  dato(`con 2 caídos, 20 s después: altura ${hB} → ${hC}, tx confirmada: ${Boolean(recibo2)}; red detenida: ${congelada}`);
+  const confirmadasCaida = (await recibosDe(colgado.lotes)).filter(Boolean).length;
+  const congelada = hC - hB <= 1 && confirmadasCaida === 0;
+  dato(`con 2 caídos, 20 s después: altura ${hB} → ${hC}, lotes confirmados ${confirmadasCaida}/${colgado.lotes.length}; red detenida: ${congelada}`);
 
   docker("start node3");
   docker("start node4");
@@ -102,8 +108,8 @@ async function main() {
   let recuperado = false;
   let ultimoAviso = 0;
   while (Date.now() - tReinicio < MAX_RECUPERACION_MS) {
-    const r = await emisor.proveedor.getTransactionReceipt(colgado.tx.hash).catch(() => null);
-    if (r) {
+    const recibos = await recibosDe(colgado.lotes);
+    if (recibos.every(Boolean)) {
       recuperado = true;
       break;
     }
@@ -114,10 +120,14 @@ async function main() {
     await dormir(1000);
   }
   const msRecuperacion = Date.now() - tReinicio;
-  dato(recuperado ? `la red retomó y confirmó la tx pendiente a los ${Math.round(msRecuperacion / 1000)} s` : "NO se recuperó dentro del límite");
+  dato(
+    recuperado
+      ? `la red retomó y confirmó los ${colgado.lotes.length} lotes pendientes a los ${Math.round(msRecuperacion / 1000)} s`
+      : "NO se recuperó dentro del límite",
+  );
   res.fases.limite = {
-    conUnCaido: { loteConfirmadoEnBloque: con3.recibo.blockNumber },
-    conDosCaidos: { alturaAntes: hB, alturaDespues: hC, redDetenida: congelada, txConfirmada: Boolean(recibo2) },
+    conUnCaido: { lotesConfirmados: okCon3, bloques: bloquesCon3 },
+    conDosCaidos: { alturaAntes: hB, alturaDespues: hC, redDetenida: congelada, lotesColgados: colgado.lotes.length, lotesConfirmadosEnCaida: confirmadasCaida },
     recuperacionMs: recuperado ? msRecuperacion : null,
     cumple: congelada && recuperado,
   };
@@ -128,7 +138,7 @@ async function cerrar(res, proxy) {
   await proxy.detener();
   fase("Resumen", "");
   const m = res.fases.manipulacion1de4;
-  console.log(`  1 de 4 manipulado: detección ${m.detectadoBloques} bloque(s) / ${m.detectadoMs} ms → ${m.cumple ? "CUMPLE" : "NO CUMPLE"} (meta ≤ 1 bloque, verdad por mayoría, 3 lotes confirmados)`);
+  console.log(`  1 de 4 manipulado: detección ${m.detectadoBloques} bloque(s) / ${m.detectadoMs} ms → ${m.cumple ? "CUMPLE" : "NO CUMPLE"} (meta ≤ 1 bloque, verdad por mayoría, ${m.lotesEnviados}/${m.lotesEnviados} lotes de la ráfaga confirmados)`);
   if (res.fases.limite) {
     const l = res.fases.limite;
     console.log(`  2 de 4 fuera: red detenida=${l.conDosCaidos.redDetenida}, recuperación ${l.recuperacionMs ? Math.round(l.recuperacionMs / 1000) + " s" : "no"} → ${l.cumple ? "COMPORTAMIENTO ESPERADO" : "REVISAR"}`);

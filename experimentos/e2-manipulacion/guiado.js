@@ -1,6 +1,9 @@
 // E2 guiado: terminal interactiva para provocar la manipulación y las caídas mientras Grafana muestra el efecto.
-// Uso:  node experimentos/e2-manipulacion/guiado.js                       menú
-//       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=8  secuencia completa con pausas
+// Uso:  node experimentos/e2-manipulacion/guiado.js [--facturas=500] [--cada=5]                 menú
+//       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=8 [--facturas=1000]  secuencia completa
+//   --facturas  facturas por ciclo de la carga constante (se lotean en lotes de MAX_LOTE)
+//   --cada      segundos entre ciclos de la carga
+//   --pausa     segundos entre pasos del autopiloto
 // Exige la red arriba, el contrato desplegado (deploy-e1.js) y Prometheus/Grafana si se quiere grabar el tablero.
 const fs = require("fs");
 const path = require("path");
@@ -12,8 +15,11 @@ const { Carga } = require("./src/carga");
 const { dormir, altura, tumbar, levantar, restaurarNodos, esperarBloque, verdadPorNodo, TUMBABLES } = require("./src/acciones");
 const { crearEmisor } = require("./enviar-facturas");
 
+const opcion = (nombre, defecto) => Number((process.argv.find((a) => a.startsWith(`--${nombre}=`)) ?? `=${defecto}`).split("=")[1]);
 const AUTOPILOTO = process.argv.includes("--autopiloto");
-const PAUSA_S = Number((process.argv.find((a) => a.startsWith("--pausa=")) ?? "--pausa=8").split("=")[1]);
+const PAUSA_S = opcion("pausa", 8);
+const FACTURAS = opcion("facturas", 500);
+const CADA_S = opcion("cada", 5);
 const MAX_RECUPERACION_MS = 6 * 60 * 1000;
 
 const c = { cian: "\x1b[1;36m", verde: "\x1b[1;32m", rojo: "\x1b[1;31m", ama: "\x1b[1;33m", gris: "\x1b[90m", fin: "\x1b[0m" };
@@ -31,7 +37,7 @@ async function esperar(seg, mostrar = true) {
   let ultimo = 0;
   while (Date.now() < fin) {
     if (mostrar && Date.now() - ultimo >= 3000) {
-      console.log(`  ${c.gris}${ctx.monitor.linea()} | lotes ok ${ctx.carga.confirmados} pend ${ctx.carga.pendientes.size}${c.fin}`);
+      console.log(`  ${c.gris}${ctx.monitor.linea()} | ${ctx.carga.linea()}${c.fin}`);
       ultimo = Date.now();
     }
     await dormir(250);
@@ -57,12 +63,18 @@ const PASOS = [
   },
   {
     titulo: "Encender la carga de liquidaciones",
-    que: "Un lote de 2 facturas cada 2 s hacia la red. Mientras corra, se ve si la red sigue confirmando.",
-    mirar: "'Lotes confirmados' sube; 'Lotes pendientes' queda en 0-2; 'Latencia' cerca de 4 s.",
+    get que() {
+      const k = ctx.carga;
+      return `${k.facturasPorCiclo} facturas cada ${k.cadaMs / 1000} s, loteadas en ${k.lotesPorCiclo} tx de hasta ${k.emisor.maxLote} (MAX_LOTE del contrato). Mientras corra, se ve si la red sigue confirmando.`;
+    },
+    get mirar() {
+      const k = ctx.carga;
+      return `'Facturas confirmadas' sube a ~${Math.round(k.facturasPorCiclo / (k.cadaMs / 1000))}/s; 'Lotes pendientes' oscila entre 0 y ${k.lotesPorCiclo}; 'Latencia' de unos pocos segundos.`;
+    },
     async ejecutar() {
       ctx.carga.iniciar();
-      await esperar(12);
-      dato(`lotes confirmados: ${ctx.carga.confirmados}, pendientes: ${ctx.carga.pendientes.size}, latencia: ${ctx.carga.latenciaMs} ms`);
+      await esperar(15);
+      dato(`${ctx.carga.linea()} | latencia ${ctx.carga.latenciaMs} ms`);
     },
   },
   {
@@ -73,6 +85,7 @@ const PASOS = [
       const urls = ctx.monitor.urls;
       const h0 = await altura();
       const conf0 = ctx.carga.confirmados;
+      const fac0 = ctx.carga.facturasConfirmadas;
       ctx.monitor.extras = [h0];
       ctx.proxy.mentir(true);
       const t0 = Date.now();
@@ -98,13 +111,15 @@ const PASOS = [
 
       await esperar(10);
       const lotes = ctx.carga.confirmados - conf0;
-      dato(`lotes confirmados mientras node4 miente: ${lotes}`);
+      const facturas = ctx.carga.facturasConfirmadas - fac0;
+      dato(`confirmados mientras node4 miente: ${facturas} facturas en ${lotes} lotes`);
       ctx.res.manipulacion1de4 = {
         detectadoMs: ms,
         detectadoBloques: bloques,
         divergentes: f.divergentes,
         nodosConVerdad: conLaVerdad,
         lotesConfirmados: lotes,
+        facturasConfirmadas: facturas,
         cumple: bloques <= 1 && conLaVerdad.length >= 3 && lotes > 0,
       };
     },
@@ -128,31 +143,46 @@ const PASOS = [
     async ejecutar() {
       const hA = await altura();
       const conf0 = ctx.carga.confirmados;
+      const fac0 = ctx.carga.facturasConfirmadas;
       tumbar("node4");
       const t0 = Date.now();
       while ((await altura()) <= hA && Date.now() - t0 < 60000) await dormir(300);
       dato(`con 1 caído, la red produjo bloque a los ${((Date.now() - t0) / 1000).toFixed(1)} s`);
       await esperar(12);
       const lotes = ctx.carga.confirmados - conf0;
-      dato(`lotes confirmados con 3 de 4: ${lotes}`);
-      ctx.res.conUnCaido = { lotesConfirmados: lotes, sigue: lotes > 0 };
+      const facturas = ctx.carga.facturasConfirmadas - fac0;
+      dato(`confirmados con 3 de 4: ${facturas} facturas en ${lotes} lotes`);
+      ctx.res.conUnCaido = { lotesConfirmados: lotes, facturasConfirmadas: facturas, sigue: lotes > 0 };
     },
   },
   {
     titulo: "Límite, parte 2: se caen 2 de 4 (node4 y node3)",
     que: "Se detiene también node3. Quedan 2 validadores, menos que el quórum de 3: la red prefiere detenerse a avanzar.",
-    mirar: "'Estado de la red' pasa a DETENIDA; la altura se congela; 'Lotes pendientes' sube.",
+    mirar: "'Estado de la red' pasa a DETENIDA; la altura se congela; 'Facturas pendientes' sube hasta el tope y luego se omiten ciclos.",
     async ejecutar() {
       const hB = await altura();
       const conf0 = ctx.carga.confirmados;
       tumbar("node3");
-      await esperar(25);
+      // Con varios lotes por ciclo, el bloque que ya tenía votos al caer node3 puede cerrarse con lotes dentro:
+      // se dan 4 s de gracia y la detención se mide desde ahí.
+      await esperar(4);
+      const hGracia = await altura();
+      const confGracia = ctx.carga.confirmados;
+      await esperar(21);
       const hC = await altura();
       const lotes = ctx.carga.confirmados - conf0;
-      const detenida = hC - hB <= 1 && lotes === 0;
+      const detenida = hC - hB <= 1 && hC === hGracia && ctx.carga.confirmados === confGracia;
       ctx.pendientesAlCaer = ctx.carga.pendientes.size;
-      dato(`altura ${hB} → ${hC}; lotes confirmados: ${lotes}; pendientes: ${ctx.pendientesAlCaer}; red detenida: ${detenida}`);
-      ctx.res.conDosCaidos = { alturaAntes: hB, alturaDespues: hC, lotesConfirmados: lotes, pendientes: ctx.pendientesAlCaer, redDetenida: detenida };
+      const facturasPendientes = ctx.carga.facturasPendientes;
+      dato(`altura ${hB} → ${hC}; lotes confirmados: ${lotes}; pendientes: ${facturasPendientes} facturas en ${ctx.pendientesAlCaer} lotes; red detenida: ${detenida}`);
+      ctx.res.conDosCaidos = {
+        alturaAntes: hB,
+        alturaDespues: hC,
+        lotesConfirmados: lotes,
+        pendientes: ctx.pendientesAlCaer,
+        facturasPendientes,
+        redDetenida: detenida,
+      };
       ctx.confirmadosAlCaer = ctx.carga.confirmados;
     },
   },
@@ -172,7 +202,7 @@ const PASOS = [
           break;
         }
         if (Date.now() - ultimo >= 15000) {
-          console.log(`  ${c.gris}${Math.round((Date.now() - t0) / 1000)} s | ${ctx.monitor.linea()} | pendientes ${ctx.carga.pendientes.size}${c.fin}`);
+          console.log(`  ${c.gris}${Math.round((Date.now() - t0) / 1000)} s | ${ctx.monitor.linea()} | ${ctx.carga.linea()}${c.fin}`);
           ultimo = Date.now();
         }
         await dormir(500);
@@ -180,7 +210,8 @@ const PASOS = [
       const seg = Math.round((Date.now() - t0) / 1000);
       ctx.monitor.fijar("e2_recuperacion_s", recuperado ? seg : -1);
       dato(recuperado ? `la red retomó y confirmó lotes a los ${seg} s` : `${c.rojo}no se recuperó en ${seg} s${c.fin}`);
-      await esperar(10);
+      await esperar(15);
+      dato(`tras la recuperación: ${ctx.carga.linea()}`);
       ctx.res.recuperacionS = recuperado ? seg : null;
       cerrarExperimento();
     },
@@ -194,11 +225,13 @@ function cerrarExperimento() {
   ctx.monitor.fijar("e2_fase", 8);
   ctx.monitor.fase = 8;
   ctx.carga.detener();
+  r.carga = ctx.carga.resumen();
   titulo("Resumen de E2");
+  narrar(`Carga: ${r.carga.facturasPorCiclo} facturas cada ${r.carga.cadaS} s (${r.carga.lotesPorCiclo} lotes de hasta ${r.carga.maxLote}); confirmadas ${r.carga.facturasConfirmadas} facturas en ${r.carga.lotesConfirmados} lotes; ${r.carga.ciclosOmitidos} ciclos omitidos`);
   const m = r.manipulacion1de4;
-  narrar(`1 de 4 manipulado: detección en ${m.detectadoBloques} bloque/s (${m.detectadoMs} ms), verdad en ${m.nodosConVerdad.length}/4 nodos, ${m.lotesConfirmados} lotes confirmados → ${m.cumple ? "CUMPLE" : "NO CUMPLE"}`);
-  narrar(`1 de 4 caído: ${r.conUnCaido.lotesConfirmados} lotes confirmados → ${r.conUnCaido.sigue ? "la red sigue" : "NO siguió"}`);
-  narrar(`2 de 4 caídos: red detenida = ${r.conDosCaidos.redDetenida}, ${r.conDosCaidos.pendientes} lotes pendientes; recuperación en ${r.recuperacionS ?? "no"} s`);
+  narrar(`1 de 4 manipulado: detección en ${m.detectadoBloques} bloque/s (${m.detectadoMs} ms), verdad en ${m.nodosConVerdad.length}/4 nodos, ${m.facturasConfirmadas} facturas (${m.lotesConfirmados} lotes) confirmadas → ${m.cumple ? "CUMPLE" : "NO CUMPLE"}`);
+  narrar(`1 de 4 caído: ${r.conUnCaido.facturasConfirmadas} facturas (${r.conUnCaido.lotesConfirmados} lotes) confirmadas → ${r.conUnCaido.sigue ? "la red sigue" : "NO siguió"}`);
+  narrar(`2 de 4 caídos: red detenida = ${r.conDosCaidos.redDetenida}, ${r.conDosCaidos.facturasPendientes} facturas (${r.conDosCaidos.pendientes} lotes) pendientes; recuperación en ${r.recuperacionS ?? "no"} s`);
   console.log(`\n  ${r.cumple ? c.verde + "E2 CUMPLE" : c.rojo + "E2 NO CUMPLE"}${c.fin}`);
   const dir = path.join(__dirname, "resultados");
   fs.mkdirSync(dir, { recursive: true });
@@ -259,7 +292,7 @@ async function manual(rl) {
         ctx.carga.encendida ? ctx.carga.detener() : ctx.carga.iniciar();
         dato(`carga ${ctx.carga.encendida ? "encendida" : "apagada"}`);
       } else if (o === "f") (await restaurar(), dato("todo restaurado"));
-      else if (o === "g") dato(`${ctx.monitor.linea()} | lotes ok ${ctx.carga.confirmados} pend ${ctx.carga.pendientes.size}`);
+      else if (o === "g") dato(`${ctx.monitor.linea()} | ${ctx.carga.linea()}`);
     } catch (e) {
       aviso(e.message);
     }
@@ -293,11 +326,12 @@ async function main() {
   const monitor = new Monitor({ urls: { ...NODOS, node4: proxy.url } });
   monitor.iniciar();
   const emisor = await crearEmisor();
-  const carga = new Carga({ emisor, monitor });
+  const carga = new Carga({ emisor, monitor, facturasPorCiclo: FACTURAS, cadaMs: CADA_S * 1000 });
   ctx = { proxy, monitor, emisor, carga, res: {} };
 
   titulo("E2 · Manipulación del libro (modo guiado)");
   narrar("Métricas en http://localhost:9465/metrics  |  Grafana: http://localhost:3001 (tablero 'E2 · Manipulación del libro')");
+  narrar(`Carga: ${FACTURAS} facturas cada ${CADA_S} s → ${carga.lotesPorCiclo} lotes de hasta ${emisor.maxLote} por ciclo`);
   await dormir(1500);
   narrar(monitor.linea());
 
@@ -315,7 +349,7 @@ async function main() {
     if (o === "1") await modoGuiado(rl).catch((e) => aviso(e.message));
     else if (o === "2") await autopiloto().catch((e) => aviso(e.message));
     else if (o === "3") await manual(rl);
-    else if (o === "4") dato(`${monitor.linea()} | lotes ok ${carga.confirmados} pend ${carga.pendientes.size}`);
+    else if (o === "4") dato(`${monitor.linea()} | ${carga.linea()}`);
     else if (o === "q") return salir(0);
   }
 }
