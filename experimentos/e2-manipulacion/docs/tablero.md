@@ -2,13 +2,14 @@
 
 [← Volver al README de E2](../README.md)
 
-Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido en `monitoring/grafana/tableros/e2-manipulacion.json`, acceso anónimo). Los datos vienen de dos jobs de Prometheus (`monitoring/prometheus.yml`): `besu` (métricas propias de cada nodo, cada 5 s) y `e2-experimento` (lo que publica `guiado.js` en `:9465`, cada 2 s). Sin `guiado.js` corriendo, los paneles `e2_*` quedan vacíos.
+Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido en `monitoring/grafana/tableros/e2-manipulacion.json`, acceso anónimo). Los datos vienen de dos jobs de Prometheus (`monitoring/prometheus.yml`): `besu` (métricas propias de cada nodo, cada 5 s) y `e2-experimento` (lo que publica `guiado.js` en `:9465`, cada 2 s). El tablero refresca cada 2 s (Grafana se levanta con `GF_DASHBOARDS_MIN_REFRESH_INTERVAL=1s`; sin eso lo sube a 5 s). Sin `guiado.js` corriendo, los paneles `e2_*` quedan vacíos; los stats conservan el último valor 1 min y el autopiloto sigue publicando al terminar hasta que se pulsa Enter.
 
 ## Paneles
 
 | Panel | Métrica | Qué muestra |
 |---|---|---|
 | Fase | `e2_fase` | Paso en curso (1–7; 8 = terminado) |
+| Paso del experimento | `e2_fase` | Franja de tiempo con el paso que corría; sirve para leer los demás paneles |
 | Nodos activos (de 4) | `sum(up{job="besu"})` | Nodos que Prometheus alcanza |
 | Nodos en desacuerdo | `e2_nodos_en_desacuerdo` | Nodos cuyo hash difiere de la mayoría |
 | Estado de la red | `e2_red_detenida` | PRODUCIENDO / DETENIDA (más de 8 s sin bloque) |
@@ -26,7 +27,9 @@ Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido e
 | Ciclos omitidos | `e2_ciclos_omitidos` | Ciclos no emitidos por el tope de 60 lotes pendientes |
 | Lotes revertidos / rechazados | `e2_lotes_revertidos`, `e2_lotes_rechazados` | Deben quedarse en 0 |
 
-## Qué esperar en cada paso (500 facturas cada 5 s)
+## Qué esperar en cada paso (500 facturas cada 5 s, `-Pausa 20`)
+
+Cada estado dura al menos `-Pausa` segundos. En una ventana de 15 min los pasos 3–6 ocupan unos 2 min: acerca la ventana a 5 min para verlos con detalle.
 
 | Paso | Estado por nodo | Altura | Facturas | Otros |
 |---|---|---|---|---|
@@ -36,7 +39,7 @@ Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido e
 | 4 Restaurar node4 | 4 verdes | sube | Sigue igual | Desacuerdo 0 |
 | 5 Cae node4 | node4 rojo | 3 líneas suben | Sigue igual | Nodos activos 3 |
 | 6 Caen node4 y node3 | 2 rojos | se congela | Confirmadas plana; pendientes sube (~2 500) | Red DETENIDA; segundos sin bloque crece |
-| 7 Recuperación | vuelven a verde | retoma | Escalón en confirmadas; pendientes a 0 | Recuperación (s) se llena |
+| 7 Recuperación | vuelven a verde | plana 1–3 min y luego retoma | Escalón en confirmadas; pendientes a 0 | Recuperación (s) se llena. La espera es el backoff de rondas de QBFT (4·2^ronda s), no un fallo del tablero |
 
 Con `-Facturas 1000` las cifras de facturas se duplican y, si la caída se alarga, aparecen ciclos omitidos.
 

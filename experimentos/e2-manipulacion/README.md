@@ -16,7 +16,7 @@ npm install                                                           # una vez
 Abre Grafana en http://localhost:3001, tablero **E2 · Manipulación del libro** (acceso anónimo, sin login), y deja la terminal a su lado. Variantes frecuentes:
 
 ```powershell
-.\experimentos\e2-manipulacion\e2.ps1 autopiloto -Facturas 1000 -Pausa 8   # los 7 pasos seguidos, 10 lotes por ciclo
+.\experimentos\e2-manipulacion\e2.ps1 autopiloto -Facturas 1000 -Pausa 20  # los 7 pasos seguidos, 10 lotes por ciclo
 .\experimentos\e2-manipulacion\e2.ps1 correr                               # conductor sin interfaz → resultados\resumen.json
 .\experimentos\e2-manipulacion\e2.ps1 pruebas                              # pruebas de Node
 .\experimentos\e2-manipulacion\e2.ps1 ayuda                                # todos los comandos y parámetros

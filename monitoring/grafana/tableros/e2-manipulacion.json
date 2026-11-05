@@ -6,7 +6,7 @@
   "editable": true,
   "refresh": "2s",
   "time": {
-    "from": "now-10m",
+    "from": "now-15m",
     "to": "now"
   },
   "tags": [
@@ -165,7 +165,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_nodos_en_desacuerdo",
+          "expr": "last_over_time(e2_nodos_en_desacuerdo[1m])",
           "instant": true
         }
       ],
@@ -214,7 +214,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_red_detenida",
+          "expr": "last_over_time(e2_red_detenida[1m])",
           "instant": true
         }
       ],
@@ -301,6 +301,88 @@
       }
     },
     {
+      "id": 19,
+      "type": "state-timeline",
+      "title": "Paso del experimento",
+      "description": "Qué paso de guiado.js corría en cada momento (e2_fase); sirve para leer los demás paneles.",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "e2_fase",
+          "legendFormat": "paso"
+        }
+      ],
+      "options": {
+        "showValue": "always",
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Preparando",
+                  "color": "text"
+                },
+                "1": {
+                  "text": "1 Red sana",
+                  "color": "green"
+                },
+                "2": {
+                  "text": "2 Carga",
+                  "color": "blue"
+                },
+                "3": {
+                  "text": "3 node4 miente",
+                  "color": "orange"
+                },
+                "4": {
+                  "text": "4 node4 restaurado",
+                  "color": "green"
+                },
+                "5": {
+                  "text": "5 Cae node4",
+                  "color": "yellow"
+                },
+                "6": {
+                  "text": "6 Caen node4 y node3",
+                  "color": "red"
+                },
+                "7": {
+                  "text": "7 Recuperación",
+                  "color": "purple"
+                },
+                "8": {
+                  "text": "Terminado",
+                  "color": "text"
+                }
+              }
+            }
+          ],
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0
+          }
+        }
+      }
+    },
+    {
       "id": 6,
       "type": "state-timeline",
       "title": "Estado por nodo",
@@ -308,7 +390,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 9
       },
       "datasource": {
         "type": "prometheus",
@@ -365,7 +447,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 5
+        "y": 9
       },
       "datasource": {
         "type": "prometheus",
@@ -405,7 +487,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 18
       },
       "datasource": {
         "type": "prometheus",
@@ -466,7 +548,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 14
+        "y": 18
       },
       "datasource": {
         "type": "prometheus",
@@ -507,7 +589,7 @@
         "h": 4,
         "w": 3,
         "x": 18,
-        "y": 14
+        "y": 18
       },
       "datasource": {
         "type": "prometheus",
@@ -549,7 +631,7 @@
         "h": 4,
         "w": 3,
         "x": 21,
-        "y": 14
+        "y": 18
       },
       "datasource": {
         "type": "prometheus",
@@ -599,7 +681,7 @@
         "h": 4,
         "w": 3,
         "x": 18,
-        "y": 18
+        "y": 22
       },
       "datasource": {
         "type": "prometheus",
@@ -641,7 +723,7 @@
         "h": 4,
         "w": 3,
         "x": 21,
-        "y": 18
+        "y": 22
       },
       "datasource": {
         "type": "prometheus",
@@ -650,7 +732,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_segundos_sin_bloque",
+          "expr": "last_over_time(e2_segundos_sin_bloque[1m])",
           "instant": true
         }
       ],
@@ -696,7 +778,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 26
       },
       "datasource": {
         "type": "prometheus",
@@ -758,7 +840,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 22
+        "y": 26
       },
       "datasource": {
         "type": "prometheus",
@@ -800,7 +882,7 @@
         "h": 4,
         "w": 3,
         "x": 18,
-        "y": 22
+        "y": 26
       },
       "datasource": {
         "type": "prometheus",
@@ -809,13 +891,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_facturas_por_ciclo",
+          "expr": "last_over_time(e2_facturas_por_ciclo[1m])",
           "instant": true,
           "legendFormat": "facturas"
         },
         {
           "refId": "B",
-          "expr": "e2_lotes_por_ciclo",
+          "expr": "last_over_time(e2_lotes_por_ciclo[1m])",
           "instant": true,
           "legendFormat": "lotes"
         }
@@ -846,7 +928,7 @@
         "h": 4,
         "w": 3,
         "x": 21,
-        "y": 22
+        "y": 26
       },
       "datasource": {
         "type": "prometheus",
@@ -855,7 +937,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_ciclos_omitidos",
+          "expr": "last_over_time(e2_ciclos_omitidos[1m])",
           "instant": true,
           "legendFormat": "omitidos"
         }
@@ -903,7 +985,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 26
+        "y": 30
       },
       "datasource": {
         "type": "prometheus",
@@ -912,13 +994,13 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "e2_lotes_revertidos",
+          "expr": "last_over_time(e2_lotes_revertidos[1m])",
           "instant": true,
           "legendFormat": "revertidos"
         },
         {
           "refId": "B",
-          "expr": "e2_lotes_rechazados",
+          "expr": "last_over_time(e2_lotes_rechazados[1m])",
           "instant": true,
           "legendFormat": "rechazados"
         }

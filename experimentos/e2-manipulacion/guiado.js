@@ -1,6 +1,6 @@
 // E2 guiado: terminal interactiva para provocar la manipulación y las caídas mientras Grafana muestra el efecto.
 // Uso:  node experimentos/e2-manipulacion/guiado.js [--facturas=500] [--cada=5]                 menú
-//       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=8 [--facturas=1000]  secuencia completa
+//       node experimentos/e2-manipulacion/guiado.js --autopiloto --pausa=20 [--facturas=1000]  secuencia completa
 //   --facturas  facturas por ciclo de la carga constante (se lotean en lotes de MAX_LOTE)
 //   --cada      segundos entre ciclos de la carga
 //   --pausa     segundos entre pasos del autopiloto
@@ -17,7 +17,7 @@ const { crearEmisor } = require("./enviar-facturas");
 
 const opcion = (nombre, defecto) => Number((process.argv.find((a) => a.startsWith(`--${nombre}=`)) ?? `=${defecto}`).split("=")[1]);
 const AUTOPILOTO = process.argv.includes("--autopiloto");
-const PAUSA_S = opcion("pausa", 8);
+const PAUSA_S = opcion("pausa", 20);
 const FACTURAS = opcion("facturas", 500);
 const CADA_S = opcion("cada", 5);
 const MAX_RECUPERACION_MS = 6 * 60 * 1000;
@@ -109,7 +109,7 @@ const PASOS = [
       const conLaVerdad = Object.keys(lecturas).filter((n) => lecturas[n] === original);
       dato(`la mayoría (${conLaVerdad.length}/4) conserva la huella original: la verdad del consorcio no cambió`);
 
-      await esperar(10);
+      await esperar(Math.max(10, PAUSA_S)); // que DIVERGE dure varios refrescos de Grafana
       const lotes = ctx.carga.confirmados - conf0;
       const facturas = ctx.carga.facturasConfirmadas - fac0;
       dato(`confirmados mientras node4 miente: ${facturas} facturas en ${lotes} lotes`);
@@ -148,7 +148,7 @@ const PASOS = [
       const t0 = Date.now();
       while ((await altura()) <= hA && Date.now() - t0 < 60000) await dormir(300);
       dato(`con 1 caído, la red produjo bloque a los ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-      await esperar(12);
+      await esperar(Math.max(12, PAUSA_S)); // que node4 CAÍDO dure varios refrescos de Grafana
       const lotes = ctx.carga.confirmados - conf0;
       const facturas = ctx.carga.facturasConfirmadas - fac0;
       dato(`confirmados con 3 de 4: ${facturas} facturas en ${lotes} lotes`);
@@ -338,7 +338,16 @@ async function main() {
   process.on("SIGINT", () => salir(130));
   if (AUTOPILOTO) {
     await autopiloto();
-    return salir(ctx.res.cumple ? 0 : 1);
+    const codigo = ctx.res.cumple ? 0 : 1;
+    // Si el proceso se cerrara aquí, Prometheus marcaría las series e2_* como obsoletas y los stats de Grafana
+    // quedarían en "No data". Se siguen publicando hasta que el operador decida salir.
+    if (process.stdin.isTTY) {
+      const rlFin = readline.createInterface({ input: process.stdin, output: process.stdout });
+      rlFin.on("SIGINT", () => salir(codigo));
+      await rlFin.question(`\n  ${c.gris}Autopiloto terminado: las métricas siguen en :9465 para Grafana. Enter (o Ctrl+C) para salir y restaurar: ${c.fin}`);
+      rlFin.close();
+    }
+    return salir(codigo);
   }
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
