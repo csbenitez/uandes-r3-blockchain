@@ -1,0 +1,724 @@
+{
+  "experiment": "E4-autorizacion",
+  "network": "besu",
+  "chainId": 20261,
+  "deployer": "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73",
+  "LiquidacionFacturas": {
+    "address": "0x42699A7612A82f1d9C36148af9C77354759b210b",
+    "deployTxHash": "0x844e629d6f58e7cca39f4fbd71d224bf44c9031901fbabf26343c5f4ed117320",
+    "deployBlock": 167,
+    "abi": [
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "registrador_",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "AccessControlBadConfirmation",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "neededRole",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AccessControlUnauthorizedAccount",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AjusteNoExiste",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AjusteYaEjecutado",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AjusteYaExiste",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "DobleFirmaRequerida",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "FacturaNoAnclada",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "FirmaDuplicada",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "HuellaDistinta",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "HuellaInvalida",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "ItemInvalido",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "tamano",
+            "type": "uint256"
+          }
+        ],
+        "name": "LoteInvalido",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "cuenta",
+            "type": "address"
+          }
+        ],
+        "name": "NoAutorizado",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "huellaAnterior",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "huellaNueva",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AjusteAnclado",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "firmante",
+            "type": "address"
+          }
+        ],
+        "name": "AjusteAprobadoSSPD",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "firmante",
+            "type": "address"
+          }
+        ],
+        "name": "AjusteAprobadoVoltera",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "huellaAnterior",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "huellaNueva",
+            "type": "bytes32"
+          }
+        ],
+        "name": "AjustePropuesto",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "huella",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes32",
+            "name": "cuenta",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint32",
+            "name": "periodo",
+            "type": "uint32"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint96",
+            "name": "wh",
+            "type": "uint96"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint96",
+            "name": "cop",
+            "type": "uint96"
+          }
+        ],
+        "name": "FacturaAnclada",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "previousAdminRole",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "newAdminRole",
+            "type": "bytes32"
+          }
+        ],
+        "name": "RoleAdminChanged",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          }
+        ],
+        "name": "RoleGranted",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          }
+        ],
+        "name": "RoleRevoked",
+        "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "DEFAULT_ADMIN_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MAX_LOTE",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "REGISTRAR_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "SSPD_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "VOLTERA_ROLE",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "anclarAjuste",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "aprobarComoSSPD",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "aprobarComoVoltera",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          }
+        ],
+        "name": "getRoleAdmin",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "grantRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "hasRole",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "huellaDe",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          }
+        ],
+        "name": "obtenerAjuste",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "facturaId",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "huellaAnterior",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "huellaNueva",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "address",
+                "name": "firmanteVoltera",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "firmanteSSPD",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "ejecutado",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct LiquidacionFacturas.Ajuste",
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "ajusteId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "facturaId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "nuevaHuella",
+            "type": "bytes32"
+          }
+        ],
+        "name": "proponerAjuste",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "facturaId",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "huella",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "cuenta",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "periodo",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint96",
+                "name": "wh",
+                "type": "uint96"
+              },
+              {
+                "internalType": "uint96",
+                "name": "cop",
+                "type": "uint96"
+              }
+            ],
+            "internalType": "struct IRegistroFacturas.Item[]",
+            "name": "items",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "registrarLote",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "callerConfirmation",
+            "type": "address"
+          }
+        ],
+        "name": "renounceRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "revokeRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes4",
+            "name": "interfaceId",
+            "type": "bytes4"
+          }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ]
+  }
+}
