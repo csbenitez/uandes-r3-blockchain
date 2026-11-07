@@ -82,6 +82,16 @@ Acciones manuales (opción 3):
 
 > **Una sola sesión a la vez.** `guiado.js`, `correr.js` y `enviar-facturas.js` firman con la misma cuenta (`DEPLOYER_PRIVATE_KEY` de `.env`) y llevan su propio contador de nonce. Dos procesos a la vez se pisan los nonces y sus transacciones quedan sin recibo. Cierra una sesión antes de abrir otra; con `Get-CimInstance Win32_Process -Filter "name='node.exe'" | Select ProcessId, CommandLine` ves cuáles siguen vivas.
 
+## Repetir una corrida (p. ej. para grabar)
+
+No hace falta reiniciar la red. Sal de `guiado` con `q` (si se cortó: `docker start node3 node4`) y vuelve a lanzarlo. Al empezar, y otra vez al iniciar el paso 1, `guiado.js` publica Detección, Recuperación y Criterio como pendientes (`-2`), así que el tablero ya no muestra los de la corrida anterior. Pon la ventana en *Last 5 minutes* para que las gráficas tampoco la muestren.
+
+Para vaciar del todo el historial de Prometheus hay que renovar su volumen anónimo (`/prometheus`); `--force-recreate` solo **no** lo borra:
+
+```powershell
+docker compose --profile monitoring up -d --force-recreate --renew-anon-volumes prometheus
+```
+
 ## Reiniciar desde cero
 
 ```powershell

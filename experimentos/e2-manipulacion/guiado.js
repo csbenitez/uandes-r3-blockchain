@@ -87,7 +87,7 @@ const PASOS = [
   {
     titulo: "Manipulación de 1 de 4: node4 reescribe su libro",
     que: "node4 empieza a contar otro libro (otro hash por bloque y otra respuesta para cada factura). Los otros 3 no cambian.",
-    mirar: "'Estado por nodo': node4 pasa a DIVERGE; 'Nodos en desacuerdo' = 1; 'Detección' muestra bloques y ms.",
+    mirar: "'Estado por nodo': node4 pasa a DIVERGE; 'Nodos en desacuerdo' = 1; 'Detección (bloques)' ≤ 1.",
     async ejecutar() {
       const urls = ctx.monitor.urls;
       const h0 = await altura();
@@ -146,7 +146,7 @@ const PASOS = [
   {
     titulo: "Límite, parte 1: se cae 1 de 4 (node4)",
     que: "Se detiene el contenedor node4. Quedan 3 validadores y el quórum es 3: la red debe seguir.",
-    mirar: "'Estado por nodo': node4 en CAÍDO; 'Nodos activos' = 3; la altura de los otros 3 sigue subiendo.",
+    mirar: "'Estado por nodo': node4 en CAÍDO; 'Estado de la red' sigue PRODUCIENDO; la altura de los otros 3 sigue subiendo.",
     async ejecutar() {
       const hA = await altura();
       const conf0 = ctx.carga.confirmados;
@@ -165,7 +165,7 @@ const PASOS = [
   {
     titulo: "Límite, parte 2: se caen 2 de 4 (node4 y node3)",
     que: "Se detiene también node3. Quedan 2 validadores, menos que el quórum de 3: la red prefiere detenerse a avanzar.",
-    mirar: "'Estado de la red' pasa a DETENIDA; la altura se congela; 'Facturas pendientes' sube hasta el tope y luego se omiten ciclos.",
+    mirar: "'Estado de la red' pasa a DETENIDA; la altura se congela; en 'Facturas', pendientes sube y confirmadas queda plana.",
     async ejecutar() {
       const hB = await altura();
       const conf0 = ctx.carga.confirmados;
@@ -196,7 +196,7 @@ const PASOS = [
   {
     titulo: "Recuperación: se restauran node3 y node4",
     que: "Se inician los dos contenedores. El tiempo de recuperación depende de las rondas de QBFT (decenas de segundos a minutos).",
-    mirar: "Los nodos pasan a verde; 'Lotes pendientes' baja; 'Recuperación (s)' se llena al confirmar el primer lote.",
+    mirar: "Los nodos pasan a verde; en 'Facturas', pendientes baja a 0; 'Recuperación (s)' se llena al confirmar el primer lote.",
     async ejecutar() {
       levantar("node3");
       levantar("node4");
@@ -246,8 +246,18 @@ function cerrarExperimento() {
   narrar(`Evidencia: experimentos/e2-manipulacion/resultados/guiado.json`);
 }
 
+// Valor que marca "aún no medido en esta corrida". Al empezar el paso 1 se publican así los
+// resultados para que Grafana no muestre los de una corrida anterior (sus stats miran 1 h atrás).
+const PENDIENTE = -2;
+function limpiarResultados() {
+  for (const m of ["e2_deteccion_ms", "e2_deteccion_bloques", "e2_recuperacion_s", "e2_criterio_cumplido"]) {
+    ctx.monitor.fijar(m, PENDIENTE);
+  }
+}
+
 async function correrPaso(i) {
   const p = PASOS[i];
+  if (i === 0) limpiarResultados();
   ctx.monitor.fase = i + 1;
   ctx.monitor.fijar("e2_fase", i + 1);
   titulo(`[Paso ${i + 1}/${PASOS.length}] ${p.titulo}`);
@@ -359,6 +369,7 @@ async function main() {
   const emisor = await crearEmisor();
   const carga = new Carga({ emisor, monitor, facturasPorCiclo: FACTURAS, cadaMs: CADA_S * 1000 });
   ctx = { proxy, monitor, emisor, carga, res: {} };
+  limpiarResultados();
 
   titulo("E2 · Manipulación del libro (modo guiado)");
   narrar("Métricas en http://localhost:9465/metrics  |  Grafana: http://localhost:3001 (tablero 'E2 · Manipulación del libro')");

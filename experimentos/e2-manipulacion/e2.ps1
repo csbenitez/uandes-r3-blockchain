@@ -61,7 +61,15 @@ switch ($Cmd) {
   'desplegar' {
     Titulo 'Despliegue del contrato de facturas'
     Push-Location contracts-hardhat
+    $inicio = Get-Date
     try { npx hardhat run scripts/deploy-e1.js --network besu } finally { Pop-Location }
+    # Node 24 en Windows a veces aborta al cerrar (libuv: "Assertion failed ... async.c")
+    # después de terminar el despliegue. Si e1.json se reescribió, el despliegue sí ocurrió.
+    if ($LASTEXITCODE -and (Test-Path 'deployments\e1.json') -and
+        (Get-Item 'deployments\e1.json').LastWriteTime -ge $inicio) {
+      Write-Warning "Node salió con código $LASTEXITCODE al cerrar, pero deployments\e1.json quedó escrito: despliegue correcto."
+      $global:LASTEXITCODE = 0
+    }
   }
   'guiado' {
     Despliegue

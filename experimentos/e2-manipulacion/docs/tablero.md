@@ -6,42 +6,35 @@ Grafana: http://localhost:3001 → **E2 · Manipulación del libro** (definido e
 
 ## Paneles
 
+El tablero muestra solo lo que mide el criterio de éxito de E2. Las demás métricas (latencia, lotes, ciclos omitidos, etc.) siguen publicándose en `:9465` y se pueden consultar en Explore.
+
 | Panel | Métrica | Qué muestra |
 |---|---|---|
-| Fase | `e2_fase` | Paso en curso (1–7; 8 = terminado) |
-| Paso del experimento | `e2_fase` | Franja de tiempo con el paso que corría; sirve para leer los demás paneles |
-| Nodos activos (de 4) | `sum(up{job="besu"})` | Nodos que Prometheus alcanza |
-| Nodos en desacuerdo | `e2_nodos_en_desacuerdo` | Nodos cuyo hash difiere de la mayoría |
+| Nodos en desacuerdo | `e2_nodos_en_desacuerdo` | Nodos cuyo hash difiere de la mayoría (0 = todos coinciden) |
+| Detección (bloques) · meta ≤ 1 | `e2_deteccion_bloques` | Bloques entre la manipulación de node4 y su detección (paso 3) |
 | Estado de la red | `e2_red_detenida` | PRODUCIENDO / DETENIDA (más de 8 s sin bloque) |
+| Recuperación (s) | `e2_recuperacion_s` | Del regreso de los nodos al primer lote confirmado (paso 7; −1 = no se recuperó) |
 | Criterio E2 | `e2_criterio_cumplido` | Veredicto final |
+| Paso del experimento | `e2_fase` | Franja de tiempo con el paso que corría; regla para leer los demás paneles |
 | Estado por nodo | `e2_nodo_estado{nodo}` | Franja por nodo: verde ok, naranja DIVERGE, rojo CAÍDO |
 | Altura por nodo | `ethereum_blockchain_height` | Bloque de cada nodo; se congela sin quórum |
-| Lotes de liquidación | `e2_lotes_confirmados`, `e2_lotes_pendientes` | Transacciones `registrarLote` |
-| Latencia de confirmación | `e2_latencia_confirmacion_ms` | Envío → recibo del último lote confirmado |
-| Detección (ms) / meta ≤ 1 bloque | `e2_deteccion_ms`, `e2_deteccion_bloques` | Medidas del paso 3 |
-| Recuperación (s) | `e2_recuperacion_s` | Medida del paso 7 (−1 = no se recuperó) |
-| Segundos sin bloque | `e2_segundos_sin_bloque` | Desde el último bloque nuevo |
-| Facturas: confirmadas y pendientes | `e2_facturas_confirmadas`, `e2_facturas_pendientes` | La carga medida en facturas |
-| Facturas confirmadas por segundo | `e2_facturas_por_segundo` | Promedio móvil de 10 s |
-| Carga por ciclo | `e2_facturas_por_ciclo`, `e2_lotes_por_ciclo` | Configuración en uso (p. ej. 500 / 5) |
-| Ciclos omitidos | `e2_ciclos_omitidos` | Ciclos no emitidos por el tope de 60 lotes pendientes |
-| Lotes revertidos / rechazados | `e2_lotes_revertidos`, `e2_lotes_rechazados` | Deben quedarse en 0 |
+| Facturas: confirmadas y pendientes | `e2_facturas_confirmadas`, `e2_facturas_pendientes` | Si la carga sigue confirmando y cuánto backlog se acumula |
 
-## Qué esperar en cada paso (con `-Facturas 500 -Cada 5 -Pausa 20`)
+## Qué esperar en cada paso
 
 Cada estado dura al menos `-Pausa` segundos. En una ventana de 15 min los pasos 3–6 ocupan unos 2 min: acerca la ventana a 5 min para verlos con detalle.
 
-| Paso | Estado por nodo | Altura | Facturas | Otros |
+| Paso | Estado por nodo | Altura | Facturas | Stats |
 |---|---|---|---|---|
-| 1 Red sana | 4 verdes | 4 líneas juntas | — | Desacuerdo 0 |
-| 2 Carga | 4 verdes | sube | Confirmadas sube ~100/s; pendientes 0–500 | Latencia 2–4 s |
-| 3 node4 miente | node4 naranja | sube | Sigue igual | Desacuerdo 1; detección 0–1 bloque |
+| 1 Red sana | 4 verdes | 4 líneas juntas | — | Desacuerdo 0 · PRODUCIENDO |
+| 2 Carga | 4 verdes | sube | Confirmadas sube; pendientes bajo | Desacuerdo 0 |
+| 3 node4 miente | node4 naranja | sube | Sigue igual | Desacuerdo 1 · Detección 0–1 |
 | 4 Restaurar node4 | 4 verdes | sube | Sigue igual | Desacuerdo 0 |
-| 5 Cae node4 | node4 rojo | 3 líneas suben | Sigue igual | Nodos activos 3 |
-| 6 Caen node4 y node3 | 2 rojos | se congela | Confirmadas plana; pendientes sube (~2 500) | Red DETENIDA; segundos sin bloque crece |
-| 7 Recuperación | vuelven a verde | plana 1–3 min y luego retoma | Escalón en confirmadas; pendientes a 0 | Recuperación (s) se llena. La espera es el backoff de rondas de QBFT (4·2^ronda s), no un fallo del tablero |
+| 5 Cae node4 | node4 rojo | 3 líneas suben | Sigue igual | PRODUCIENDO |
+| 6 Caen node4 y node3 | 2 rojos | se congela | Confirmadas plana; pendientes sube | DETENIDA |
+| 7 Recuperación | vuelven a verde | plana 1–3 min y luego retoma | Escalón en confirmadas; pendientes a 0 | Recuperación (s) se llena · Criterio E2 |
 
-Con `-Facturas 1000` las cifras de facturas se duplican y, si la caída se alarga, aparecen ciclos omitidos.
+La espera del paso 7 es el backoff de rondas de QBFT (4·2^ronda s), no un fallo del tablero.
 
 ## Todas las métricas de `:9465/metrics`
 
