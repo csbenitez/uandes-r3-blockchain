@@ -1,0 +1,49 @@
+{
+  "fecha": "2026-11-06T02:51:40.869Z",
+  "base": {
+    "bloque": 10952,
+    "coinciden4": true
+  },
+  "manipulacion1de4": {
+    "detectadoMs": 16,
+    "detectadoBloques": 0,
+    "divergentes": [
+      "node4"
+    ],
+    "nodosConVerdad": [
+      "node1",
+      "node2",
+      "node3"
+    ],
+    "lotesConfirmados": 10,
+    "facturasConfirmadas": 100,
+    "cumple": true
+  },
+  "conUnCaido": {
+    "lotesConfirmados": 10,
+    "facturasConfirmadas": 100,
+    "sigue": true
+  },
+  "conDosCaidos": {
+    "alturaAntes": 11024,
+    "alturaDespues": 11024,
+    "lotesConfirmados": 1,
+    "pendientes": 13,
+    "facturasPendientes": 130,
+    "redDetenida": true
+  },
+  "recuperacionS": 148,
+  "cumple": true,
+  "carga": {
+    "facturasPorCiclo": 10,
+    "cadaS": 2,
+    "maxLote": 100,
+    "lotesPorCiclo": 1,
+    "ciclos": 137,
+    "ciclosOmitidos": 37,
+    "lotesConfirmados": 135,
+    "facturasConfirmadas": 1350,
+    "lotesRevertidos": 0,
+    "lotesRechazados": 0
+  }
+}
